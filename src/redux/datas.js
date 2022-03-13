@@ -9,6 +9,10 @@ const initState = {
         contact: null,
         address: null
     },
+    masterDataRelation: {
+        customerContact: null,
+        customerAddress: null
+    },
     modals: {
         customer: false,
         address: false,

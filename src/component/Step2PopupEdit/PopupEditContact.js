@@ -3,27 +3,35 @@ import { Modal, Button, Table, Form, Col, Row, Container } from 'react-bootstrap
 import PopupAddCustomer from '../Step3PopupAdd/PopupAddCustomer';
 import { BsPencilSquare } from "react-icons/bs";
 import Axios from 'axios';
+import { useSelector } from 'react-redux'
 
 
 function PopupEditContact() {
+    // -------- REDUX STORE -------------- ✔️✔️✔️✔️✔️✔️✔️✔️✔️✔️✔️✔️
+    const contacts = useSelector(state => state.masterDatas.contact) // 👈👈👈👈👈👈👈👈👈👈👈👈👈
+    // -------- REDUX STORE --------------
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    const [Contacts, setContacts] = React.useState([]);
-    React.useEffect(() => {
-        Axios.get('http://localhost:5000/api/contact', { withCredentials: true })
-            .then(res => {
-                console.log(res)
-                setContacts(res.data.recordset)
-            })
-            .catch(err => {
-                console.error(err)
-            })
-    }, [])
+    /************** JUST GET DATA FROM REDUX !!!!!!!!!!!!*****************************
+     * ❌❌❌❌❌❌❌❌❌
+    // const [Contacts, setContacts] = React.useState([]);
+    // React.useEffect(() => {
+    //     Axios.get('http://localhost:5000/api/contact', { withCredentials: true })
+    //         .then(res => {
+    //             console.log(res)
+    //             setContacts(res.data.recordset)
+    //         })
+    //         .catch(err => {
+    //             console.error(err)
+    //         })
+    // }, [])
+    ❌❌❌❌❌❌❌❌❌❌❌
+    */
 
-    const renderData = Contacts.map((item, i) => {
+    const renderData = contacts.map((item, i) => {
         return (
             <div className="contactmodal" key={i} >
                 <Form>

@@ -1,6 +1,6 @@
 import PopupAddCustomer from '../Step3PopupAdd/PopupAddCustomer';
 import React, { useState } from 'react';
-import { Modal, Button, Table, Form, Col, Row, Container } from 'react-bootstrap'
+import { Modal, Button, Table, Form, Col, Row, Container, Alert, Card, Spinner } from 'react-bootstrap'
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux'
@@ -13,6 +13,7 @@ function PopupContact() {
     const userData = useSelector(state => state.user.data)
     const dispatch = useDispatch();
     const customers = useSelector(state => state.masterDatas.customer)
+    console.log('customers', customers)
     // ------- redux store ------
 
     const navigate = useNavigate();
@@ -20,6 +21,7 @@ function PopupContact() {
     // ------- Local state -------
     const [ lastContact, setLastContact ] = useState(null)
     const [ childID, setChildID ] = useState(null)
+    const [ spinnerState, setSpinnerState ] = useState(false)
     // ------- Local state -------
 
     const getSelectedCustomerID = (id) => {
@@ -88,23 +90,52 @@ function PopupContact() {
         setContactFAX('')
     }
 
+
+    const handleRelationSubmit = async () => {
+        try {
+            const res = await axios.post('http://localhost:5000/api/contact/bind', { cusID:  childID, conID: lastContact.IdMasterData}, { withCredentials: true })
+            console.log(res)
+            // TODO: we need nothing from server response but status so we can react accordingly
+            // dispatch selected customerID to redux store of master data relationship 
+        }catch(err) {
+            console.log(err)
+        }
+    }
+
+    const filterRelationCustomer = (id) => {
+        const f = customers.filter(c => c.IdMasterData == id)
+        console.log(id)
+        console.log(f)
+        return f.map(n => (
+            <>
+                <hr/>
+                <h3>Selected Customer</h3>
+                <small>Status: Pending</small>
+                <p>ID: <code>{n.IdMasterData}</code></p>
+                <p>Name: <b>{n.Company}</b></p>
+                <p>Email: <b>{n.Email}</b></p>
+            </>
+        ))
+    }
+
     // TODO: must filter data accordingly to contact ID
-    const renderData = customers ? customers.map((item, i) => {
-        return(
-            <tr key={i}>
-                <td>{item.Id}</td>
-                <td>{item.Type}</td>
-                <td>{item.Company}</td>
-                <td>{item.Email}</td>
-                <td>{item.Phone}</td>
-                <td>{item.FAX}</td>
-            </tr>
-        )
-    }) : null
+    // const renderData = customers ? filterRelationCustomer.map((item, i) => {
+    //     return(
+            // <tr key={i}>
+            //     <td>{item.Id}</td>
+            //     <td>{item.Type}</td>
+            //     <td>{item.Company}</td>
+            //     <td>{item.Email}</td>
+            //     <td>{item.Phone}</td>
+            //     <td>{item.FAX}</td>
+            // </tr>
+    //     )
+    // }) : null
     
     
     return (
         <>  
+            
 
             <Modal
                 size="xl"
@@ -112,9 +143,18 @@ function PopupContact() {
                 onHide={handleCloseModal}
                 backdrop="static"
                 keyboard={false}
+                className="alert-fixed"
             >
+                {/* <Alert variant="danger" dismissible>
+                    <Alert.Heading>Oh snap! You got an error!</Alert.Heading>
+                    <p>
+                    Change this and that and try again. Duis mollis, est non commodo
+                    luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.
+                    Cras mattis consectetur purus sit amet fermentum.
+                    </p>
+                </Alert> */}
                 <Modal.Header closeButton>
-                    <Modal.Title>Contact Detail</Modal.Title>                  
+                    <Modal.Title className='modal-header'>Contact Detail</Modal.Title>                                  
                 </Modal.Header>
                 <Modal.Body>
                 <div className="contactmodal" >
@@ -192,10 +232,21 @@ function PopupContact() {
                     <Button variant="success" size="sm"  type="submit"onClick={handleSubmit}>Save</Button>
                 </Form> :
                     <>
-                        <small>ID: {lastContact.IdMasterData}</small>
-                        <h1>{lastContact.Name}</h1>
-                        <h4>Phone: {lastContact.Phone}</h4>
-                        <h4>Email: {lastContact.Email}</h4>
+                        <small>ID: <code>{lastContact.IdMasterData}</code></small>
+                        <h5>Name: <b>{lastContact.Name}</b></h5>
+                        <p>Phone: {lastContact.Phone}</p>
+                        <p>Email: {lastContact.Email}</p>
+
+                        { filterRelationCustomer(childID) }
+
+                        {/* {childID && customers.filter(customer => customer.IdMasterData === childID ? (
+                            <>
+                                <code>CustomerID : {customer.IdMasterData}</code>
+                                <code>Customer Name : {customer.Company}</code>
+                                <code>Customer Email : {customer.Email}</code>
+                            </>
+                        ) : null)} */}
+                        
                     </>
                 }
 
@@ -203,7 +254,7 @@ function PopupContact() {
             
             </div>
                     {/*//Popup Add Customer*/}
-                    <PopupAddCustomer isAddedContact={lastContact} getSelectedCustomerID={getSelectedCustomerID} />
+                    <PopupAddCustomer isChildIDSet={childID} isAddedContact={lastContact} getSelectedCustomerID={getSelectedCustomerID} />
                     <br /><br />
 
                     <Table striped bordered hover size="sm">
@@ -218,12 +269,26 @@ function PopupContact() {
                             </tr>
                         </thead>
                         <tbody>
-                            {/* { renderData } */}
+                            {/* { filterRelationCustomer('dkaejda').map(c => (
+                                <>{c.IdMasterData}</>
+                            )) } */}
                         </tbody>
                     </Table>
                 </Modal.Body>
                 <Modal.Footer>                    
-                    <Button variant="success" size="sm" >Submit</Button>
+                    <Button variant="success" size="sm" onClick={handleRelationSubmit} 
+                    >
+                        {spinnerState ? (
+                            <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                        />
+                        ): null}
+                        Submit
+                    </Button>
                     <Button variant="secondary" onClick={handleCloseModal} size="sm">
                         Close
                     </Button>

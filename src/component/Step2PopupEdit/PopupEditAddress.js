@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Col, Row, Table, Container } from 'react-bootstrap'
-import PopupAddCustomer from './PopupAddCustomer';
+import PopupAddCustomer from '../Step3PopupAdd/PopupAddCustomer';
 
 function PopupEditAddress() {
     const [show, setShow] = useState(false);

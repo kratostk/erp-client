@@ -3,7 +3,7 @@ import { Modal, Button, Form, Col, Row, Spinner } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 import axios from "axios";
 
-function PopupCustomer({ isAddedContact ,getSelectedCustomerID}) {
+function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
     const stateCustomerModal = useSelector(state => state.modals.customer)
 
     //-------- Redux store -----
@@ -69,7 +69,7 @@ function PopupCustomer({ isAddedContact ,getSelectedCustomerID}) {
 
     const renderData = customers ? customers.map((item, i) => {
         return(
-            <option>{item.Company}</option>            
+            <option key={i}>{item.Company}</option>            
         )
     }): null
     
@@ -78,7 +78,7 @@ function PopupCustomer({ isAddedContact ,getSelectedCustomerID}) {
         <>
             <div class="col float-end">
                 <Button disabled={!isAddedContact} variant="success" onClick={handleShow} size="sm">
-                    Add Customer
+                    { isChildIDSet ? 'Switch Customer' : 'Add Customer'}
                 </Button>
             </div>
 
@@ -114,7 +114,7 @@ function PopupCustomer({ isAddedContact ,getSelectedCustomerID}) {
                                         defaultValue="Please select Customer">
                                         {/* <option onSelect={(e) => console.log(e)}>Please select Customer</option> */}
                                         {/* { renderData } */}
-                                        { customers.map((item, i) => (
+                                        { customers && customers.map((item, i) => (
                                             <option value={item.IdMasterData} label={item.Company} key={i}/>
                                         ))}
                                     </Form.Select>

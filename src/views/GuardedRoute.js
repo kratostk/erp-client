@@ -6,7 +6,11 @@ import { useDispatch } from 'react-redux'
 import { authenticated, unauthenticated } from '../redux/actions'
 
 const GuardedRoute = () => {
+  // ----------- REDUX STORE ----------
   const ax = useSelector((s) => s.isAuth);
+  const dispatch = useDispatch()
+  // ----------- REDUX STORE ----------
+
   const base_URL = "http://localhost:5000/";
   const [data, setData] = React.useState(null);
 
@@ -17,6 +21,7 @@ const GuardedRoute = () => {
     try {
       const res = await axios.get(base_URL, { withCredentials: true });
       setData(true);
+      dispatch(authenticated(res.data.user))
     } catch (err) {
       console.error(err);
       setData(null);

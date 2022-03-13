@@ -3,12 +3,12 @@ import initState from './datas'
 const reducer = (state = initState, action) => {
     switch (action.type) {
         case "AUTH":
+            console.log(action)
             return {
                 ...state,
                 user: {
-                    ...state.user,
                     isAuth: state.user.isAuth = true,
-                    data: state.user.data = action.paylaod
+                    data: state.user.data = action.payload
                 }
             }
         case "UNAUTH":

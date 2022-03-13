@@ -12,48 +12,107 @@ function PopupCustomer() {
 
     // ------- redux store ------
     const stateCustomerModal = useSelector(state => state.modals.customer)
+    const userData = useSelector(state => state.user.data)
     const dispatch = useDispatch();
+    const contact = useSelector(state => state.masterDatas.contact)
+    const address  = useSelector(state => state.masterDatas.address)
     // ------- redux store ------
 
     const navigate = useNavigate();
 
-    //-------- Validated ------------
-    const [validated, setValidated] = useState(false);
-    const validatedSubmit = (event) => {
-        const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-    
-        setValidated(true);
-      };
+    // ------- Local state -------
+    const [ lastCustomer, setLastCustomer  ] = useState(null)
+    const [ childID, setChildID ] = useState(null)
+    // ------- Local state -------
 
-    //-------- Axios ------------
-    const [CustomerType, setCustomerType] = useState('');
+    const getSelectedContactID = (id) => {
+        setChildID(id)
+    }
+
+    const getSelectedAddressID = (id) => {
+        setChildID(id)
+    }
+    console.log('new Added contactID', lastCustomer)
+    console.log('childID', childID)
+    //-------- Function validated  ------------
+    const [validated, setValidated] = useState(false);
+
+    const validatedSubmit = (event) => {
+      const form = event.currentTarget;
+      if (form.checkValidity() === false) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+  
+      setValidated(true);
+    };
+
+    
+    //-------- Post request Customer ------------
+    const [CustomerType, setCustomerType] = useState(null);
     const [CustomerName, setCustomerName] = useState('');
     const [CustomerPhone, setCustomerPhone] = useState('');
     const [CustomerEmail, setCustomerEmail] = useState('');
     const [CustomerFAX, setCustomerFAX] = useState('');
-    
-        
-    const handleSubmit = function (e) {
-        console.log('hit submit customer')
-        alert('hi')
+
+    const handleSubmit = async function (e) {
         e.preventDefault();
+        console.log('hi')
         const customerData = {
-            CustomerType: CustomerType,
-            CustomerName: CustomerName,
-            CustomerPhone: CustomerPhone,
-            CustomerEmail: CustomerEmail,
-            CustomerFAX: CustomerFAX
-            
+            CustomerType : CustomerType,
+            CustomerName : CustomerName,
+            CustomerPhone : CustomerPhone,
+            CustomerEmail : CustomerEmail,
+            CustomerFAX : CustomerFAX,
+            user : userData
         };
-        axios.post('http://localhost:5000/api/customer', customerData, { withCredentials: true })
-        .then((response) => { 
-            console.log(response)              
-        }).catch(err => console.log(err))
+        try {
+            const res = await axios.post('http://localhost:5000/api/customer', customerData, { withCredentials: true })
+            const { output_id } = res.data.data;
+            const updateCustomerConstants = {
+                Name: customerData.CustomerName,
+                Type: customerData.CustomerType,
+                Phone: customerData.CustomerPhone,
+                Email: customerData.CustomerEmail,
+                FAX: customerData.CustomerFAX,
+                IdMasterData: output_id
+            }
+            setLastCustomer(updateCustomerConstants)
+            console.log(res)
+            dispatch({type: 'UPDATE_CUSTOMER', payload: updateCustomerConstants}) 
+        }catch(err) {
+            console.log(err)
+        }
     };
+
+    const handleCloseModal = () => {
+        dispatch(closeCustomerModal())
+        setLastCustomer(null)
+        setCustomerType('')
+        setCustomerName('')
+        setCustomerPhone('')
+        setCustomerEmail('')
+        setCustomerFAX('')
+    }
+
+
+    const handleRelationSubmit = async () => {
+        // console.log('bind', lastContact.IdMasterData)
+        try {
+            //addID no
+            const res
+             = await axios.post('http://localhost:5000/api/customer/bind', { conID:  childID, cusID: lastCustomer.IdMasterData}, { withCredentials: true })
+            console.log(res)
+            // filterRelationCustomer(childID)
+        }catch(err) {
+            console.log(err)
+        }
+    }
+
+    const filterRelationCustomer = (id) => {
+        return contact.filter(c => c.IdmasterData === id)
+    }
+
 
 
     return (
@@ -72,7 +131,7 @@ function PopupCustomer() {
                 </Modal.Header>
                 <Modal.Body>
                     <div >
-                        <Form>
+                    { !lastCustomer ? <Form>
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="CustomerTypeDropdown">
                                     <Form.Label>Customer type</Form.Label>
@@ -111,9 +170,23 @@ function PopupCustomer() {
                                     <Form.Control type="FAX" value={CustomerFAX} onChange={(e) => setCustomerFAX(e.target.value)} placeholder="FAX" />
                                 </Form.Group>
                             </Row>
-                        </Form>
+                            <Button variant="success" size="sm"  type="submit"onClick={handleSubmit}>Save</Button>
+                    </Form> :
+                         <>
+                            <small>ID: {lastCustomer.IdMasterData}</small>
+                            <h1>{lastCustomer.Name}</h1>
+                            <h4>Phone: {lastCustomer.Phone}</h4>
+                            <h4>Email: {lastCustomer.Email}</h4>
+                            <h4>FAX: {lastCustomer.FAX}</h4>
+                        </>
+                    }
+
+                    </div>
                         
-                        <PopupAddAddress/> <br/><br/>
+                        
+                        <PopupAddAddress isAddedCustomer={lastCustomer} getSelectedAddressID={getSelectedAddressID} />
+                    
+                        <br/><br/>
                         
                         <Table striped bordered hover size="sm">
                             <thead>
@@ -148,7 +221,9 @@ function PopupCustomer() {
                             </tbody>
                         </Table>
 
-                        <PopupAddContact/><br /><br />
+                        <PopupAddContact isAddedCustomer={lastCustomer} getSelectedContactID={getSelectedContactID} />
+                    
+                        <br/><br/>
 
                         <Table striped bordered hover>
                             <thead>
@@ -173,11 +248,13 @@ function PopupCustomer() {
                             </tbody>
                         </Table>
                         
-                    </div >
+                   
                 </Modal.Body>
                 <Modal.Footer>
                     
-                    <Button type="submit" variant="success" size="sm" onClick={handleSubmit}>Save</Button>
+                    <Button variant="success" size="sm" onClick={handleRelationSubmit} >
+                        Submit
+                    </Button>
                     <Button variant="secondary" onClick={() => dispatch(closeCustomerModal())} size="sm">
                         Close
                     </Button>

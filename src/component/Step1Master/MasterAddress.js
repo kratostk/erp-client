@@ -1,41 +1,43 @@
 ﻿import React, { useState } from 'react';
 import { Button, Table, Row, Col, Container, Form } from 'react-bootstrap'
 import Axios from 'axios';
-import { useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { openAddressModal, closeAddressModal } from '../../redux/actions'
 import { BsPencilSquare } from "react-icons/bs";
+import PopupEditAddress from '../Step2PopupEdit/PopupEditAddress';
 
 function MasterAddress() {
     const dispatch = useDispatch()
+    const address = useSelector(state => state.masterDatas.address) // from redux store
+    console.log(address)
+   
     const [show, setShow] = useState(false);
     const handleClose = function (m) {
-        console.log('tringer')
-        console.log(m, 'HEYEYE')
         setShow(m);
     };
     const handleShow = () => {
         dispatch({ type: "TOGGLE_ADDRESS_POPUP", payload: true })
-        // setShow(true)
-        // console.log(show);
-    };
+        
+    }; 
 
-    const [ addresses, setAddresses ] = React.useState([]);
 
     React.useEffect(() => {
         Axios.get('http://localhost:5000/api/address', { withCredentials: true })
         .then(res => {
-            console.log(res)
-            setAddresses(res.data.recordset)
+            // setContacts(res.data.recordset)
+            dispatch({type: 'SET_ADDRESS', payload: res.data.recordset})
         })
         .catch(err => {
             console.error(err)
         })
     }, [])
 
-    const renderData = addresses.map((item, i) => {
+    const sayHi = (id) => alert(`ID: ${id} 😀`)
+
+    const renderData = address ? address.map((item, i) => {
         return (
-            <tr key={i}>
-                <td>{item.Id}</td>
+            <tr key={i} onClick={() => sayHi(item.IdMasterData)}>
+                <td>{i}</td>
                 <td>{item.TypeAddress}</td>
                 <td>{item.Name}</td>
                 <td>{item.Description}</td>
@@ -47,11 +49,11 @@ function MasterAddress() {
                 <td>{item.PostalCode}</td>
             </tr>
         )
-    })
+    }) : null
 
     return (
         <div >
-            <Container>
+           
                 <Row>
                     <Col >
                         <Form.Select aria-label="Default select example" size="sm">
@@ -70,7 +72,7 @@ function MasterAddress() {
                         </div>
                     </Col>
                 </Row>
-            </Container>
+            
 
             <br />            
             <Table striped bordered hover size="sm">

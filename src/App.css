@@ -62,6 +62,19 @@
   color: #61dafb;
 }
 
+.alert-fixed {
+  position:fixed; 
+  top: 0px; 
+  left: 0px; 
+  width: 50%;
+  z-index:9999; 
+  border-radius:0px
+}
+
+.modal-header {
+  /* background: rgb(168, 179, 179); */
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

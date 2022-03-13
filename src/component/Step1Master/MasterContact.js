@@ -7,11 +7,15 @@ import { BsPencilSquare } from "react-icons/bs";
 import PopupEditContact from '../Step2PopupEdit/PopupEditContact';
 //import BootstrapTable from 'react-bootstrap-table-next';  
 //import paginationFactory from 'react-bootstrap-table2-paginator';
+import SearchFilter from '../SearchFilter'
 
 function MasterContact() {
     const dispatch = useDispatch()
     const contacts = useSelector(state => state.masterDatas.contact) // from redux store
-    console.log(contacts)
+
+    // ---------- LOCAL STATE --------------
+    const [ filterData, setFilterData ] = useState([])
+    // ---------- LOCAL STATE --------------
 
     // const [Contacts, setContacts] = React.useState([]);
     const [show, setShow] = useState(false);
@@ -37,7 +41,17 @@ function MasterContact() {
 
     const sayHi = (id) => alert(`ID: ${id} 😀`)
 
-    const renderData = contacts ? contacts.map((item, i) => {
+    const filterContacts = (text) => {
+        if(text === undefined || text === null) {
+            setFilterData(contacts)
+        }else {
+            const res = contacts.filter(item => item.Name.toLowerCase().match(text.toLowerCase()))
+            setFilterData(res)
+        }
+        
+    }
+
+    const renderData = contacts ? filterData.map((item, i) => {
         return (
             <tr key={i} onClick={() => sayHi(item.IdMasterData)}>
                 <td>{i}</td>
@@ -57,12 +71,13 @@ function MasterContact() {
         <div >         
                 <Row>
                     <Col >
-                        <Form.Select aria-label="Default select example" size="sm">
+                        <SearchFilter masterData={ filterContacts }/>
+                        {/* <Form.Select aria-label="Default select example" size="sm">
                             <option>Search </option>
                             <option value="1">One</option>
                             <option value="2">Two</option>
                             <option value="3">Three</option>
-                        </Form.Select>
+                        </Form.Select> */}
                     </Col>
 
                     <Col >
