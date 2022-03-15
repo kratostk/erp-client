@@ -1,9 +1,11 @@
-﻿import PopupAddContact from './PopupAddContact';
-import PopupAddAddress from './PopupAddAddress';
+﻿import PopupAddContact from '../Step3PopupAdd/PopupAddContact';
+import PopupAddAddress from '../Step3PopupAdd/PopupAddAddress';
 import React, { useState } from 'react';
 import { Modal, Button, Table, Form, Col, Row, Container } from 'react-bootstrap'
 import axios from "axios";
 import { BsPencilSquare } from "react-icons/bs";
+import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from "react-router-dom";
 
 function PopupEditCustomer() {
     const [show, setShow] = useState(false);
@@ -11,13 +13,65 @@ function PopupEditCustomer() {
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
+    // ------- redux store ------
+    const stateCustomerModal = useSelector(state => state.modals.customer)
+    const userData = useSelector(state => state.user.data)
+    const dispatch = useDispatch();
+    const contact = useSelector(state => state.contacts.contacts.data)
+    const address  = useSelector(state => state.addresses.addresses.data)
+    // ------- redux store ------
+
+    const navigate = useNavigate();
+
+    // ------- Local state -------
+    const [ lastCustomer, setLastCustomer  ] = useState(null)
+    const [ childID, setChildID ] = useState(null)
+    // ------- Local state -------
+
+    //-------- Post request Customer ------------
+    const [CustomerType, setCustomerType] = useState(null);
+    const [CustomerName, setCustomerName] = useState('');
+    const [CustomerPhone, setCustomerPhone] = useState('');
+    const [CustomerEmail, setCustomerEmail] = useState('');
+    const [CustomerFAX, setCustomerFAX] = useState('');
+
+    const handleSubmit = async function (e) {
+        e.preventDefault();
+        console.log('hi')
+        const customerData = {
+            CustomerType : CustomerType,
+            CustomerName : CustomerName,
+            CustomerPhone : CustomerPhone,
+            CustomerEmail : CustomerEmail,
+            CustomerFAX : CustomerFAX,
+            user : userData
+        };
+        try {
+            const res = await axios.post('http://localhost:5000/api/customer', customerData, { withCredentials: true })
+            const { output_id } = res.data.data;
+            const updateCustomerConstants = {
+                Name: customerData.CustomerName,
+                Type: customerData.CustomerType,
+                Phone: customerData.CustomerPhone,
+                Email: customerData.CustomerEmail,
+                FAX: customerData.CustomerFAX,
+                IdMasterData: output_id
+            }
+            setLastCustomer(updateCustomerConstants)
+            console.log(res)
+            dispatch({type: 'UPDATE_CUSTOMER', payload: updateCustomerConstants}) 
+        }catch(err) {
+            console.log(err)
+        }
+    };
+
     return (
         <>           
             <BsPencilSquare onClick={handleShow} />               
 
             <Modal
                 size="xl"
-                show={modal}
+                show={show}
                 onHide={handleClose}
                 backdrop="static"
                 keyboard={false}
@@ -31,7 +85,7 @@ function PopupEditCustomer() {
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="CustomerTypeDropdown">
                                     <Form.Label>Customer type</Form.Label>
-                                    <Form.Select defaultValue="Please select Customer type" type="CustomerType" value={CustomerType} onChange={(e) => setCustomerType(e.target.value)}>
+                                    <Form.Select defaultValue="Please select Customer type" type="CustomerType" >
                                         <option>Please select Customer type</option>
                                         <option>...</option>
                                     </Form.Select>
@@ -39,7 +93,7 @@ function PopupEditCustomer() {
 
                                 <Form.Group as={Col} controlId="CustomerNameInput">
                                     <Form.Label>Customer name</Form.Label>
-                                    <Form.Control type="CustomerName" value={CustomerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer name" />
+                                    <Form.Control type="CustomerName" placeholder="Customer name" />
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">

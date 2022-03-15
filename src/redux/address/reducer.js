@@ -1,31 +1,31 @@
 const initState = {
-    contacts: {
+    addresses: {
         isLoading: false,
         error: null,
         data: null
     }
 }
 
-const contactReducer = (state = initState, action) => {
+const addressReducer = (state = initState, action) => {
     switch (action.type) {
-        case "SET_CONTACTS":
+        case "SET_ADDRESSES":
             return {
                 ...state,
-                contacts: {
-                    ...state.contacts,
+                addresses: {
+                    ...state.addresses,
                     isLoading: false,
                     error: null,
-                    data: state.contacts.data = action.payload
+                    data: state.addresses.data = action.payload
                 }
             }
-        case "UPDATE_CONTACT":
+        case "UPDATE_ADDRESS":
             return {
                 ...state,
-                contacts: {
-                    ...state.contacts,
+                addresses: {
+                    ...state.addresses,
                     isLoading: false,
                     error: null,
-                    data: [...state.contacts.data, action.payload]
+                    data: [...state.addresses.data, action.payload]
                 }
             }
         default:
@@ -33,4 +33,4 @@ const contactReducer = (state = initState, action) => {
     }
 }
 
-export default contactReducer;
+export default addressReducer;

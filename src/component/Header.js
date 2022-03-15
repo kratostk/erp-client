@@ -6,7 +6,7 @@ import { Container, Row, Col } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 
 function Header() {
-    const userData = useSelector(state => state.user.data);
+    const userData = useSelector(state => state.user.user.data);
     return (
         <div className="Header">      
             <header className="HeaderHeader">
@@ -26,7 +26,7 @@ function Header() {
                                 <BsFillPeopleFill size="2em" className="col float-end" /> <br />
                                 {/*<p class="text-center" className="Text2"> Name :</p>*/}
                                {/* <p class="text-center" className="Text2"> Username :</p>*/}
-                                <p className="text-center" className="Text2"> {userData ? userData.fullName : 'Anonymous'}</p>
+                                <p className="text-center" className="Text2"> User name : {userData ? userData.fullName : 'Anonymous'}</p>
                             </div>            
                         </Col>
                     </Row>

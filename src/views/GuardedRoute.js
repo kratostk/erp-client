@@ -21,7 +21,10 @@ const GuardedRoute = () => {
     try {
       const res = await axios.get(base_URL, { withCredentials: true });
       setData(true);
-      dispatch(authenticated(res.data.user))
+      dispatch(authenticated(res.data.user));
+      console.log('hey', res)
+      dispatch({ type: 'SET_REL', payload: res.data.data })
+      // dispatch relationalTables and might be great to save it in localStorage
     } catch (err) {
       console.error(err);
       setData(null);

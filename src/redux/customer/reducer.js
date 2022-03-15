@@ -1,31 +1,32 @@
 const initState = {
-    contacts: {
+    customers: {
         isLoading: false,
         error: null,
         data: null
     }
 }
 
-const contactReducer = (state = initState, action) => {
+const customerReducer = (state = initState, action) => {
     switch (action.type) {
-        case "SET_CONTACTS":
+        case "SET_CUSTOMERS":
             return {
                 ...state,
-                contacts: {
-                    ...state.contacts,
+                customers: {
+                    ...state.customers,
                     isLoading: false,
                     error: null,
-                    data: state.contacts.data = action.payload
+                    data: state.customers.data = action.payload
                 }
             }
-        case "UPDATE_CONTACT":
+        case "UPDATE_CUSTOMER":
+            console.log(action)
             return {
                 ...state,
-                contacts: {
-                    ...state.contacts,
+                customers: {
+                    ...state.customers,
                     isLoading: false,
                     error: null,
-                    data: [...state.contacts.data, action.payload]
+                    data: [...state.customers.data, action.payload]
                 }
             }
         default:
@@ -33,4 +34,4 @@ const contactReducer = (state = initState, action) => {
     }
 }
 
-export default contactReducer;
+export default customerReducer;

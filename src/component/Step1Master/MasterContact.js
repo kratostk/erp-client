@@ -10,18 +10,20 @@ import PopupEditContact from '../Step2PopupEdit/PopupEditContact';
 import SearchFilter from '../SearchFilter'
 
 function MasterContact() {
+    // ---------- REDUX STATE --------------
     const dispatch = useDispatch()
-    const contacts = useSelector(state => state.masterDatas.contact) // from redux store
+    const contacts = useSelector(state => state.contacts.contacts.data) // from redux store
+    // ---------- REDUX STATE --------------
 
     // ---------- LOCAL STATE --------------
     const [ filterData, setFilterData ] = useState([])
-    // ---------- LOCAL STATE --------------
-
-    // const [Contacts, setContacts] = React.useState([]);
     const [show, setShow] = useState(false);
     const handleClose = function (m) {
         setShow(m);
     };
+    // ---------- LOCAL STATE --------------
+
+    
     const handleShow = () => {
         dispatch({ type: "TOGGLE_CONTACT_POPUP", payload: true })
         // setShow(true)
@@ -33,6 +35,7 @@ function MasterContact() {
         .then(res => {
             // setContacts(res.data.recordset)
             dispatch({type: 'SET_CONTACTS', payload: res.data.recordset})
+            // setFilterData(contacts)
         })
         .catch(err => {
             console.error(err)
@@ -42,16 +45,14 @@ function MasterContact() {
     const sayHi = (id) => alert(`ID: ${id} 😀`)
 
     const filterContacts = (text) => {
-        if(text === undefined || text === null) {
-            setFilterData(contacts)
-        }else {
-            const res = contacts.filter(item => item.Name.toLowerCase().match(text.toLowerCase()))
-            setFilterData(res)
-        }
+        const res = contacts.filter(item => item.Name.toLowerCase().match(text.toLowerCase()) || item.Email.toLowerCase().match(text.toLowerCase()))
+        setFilterData(res)
         
     }
 
-    const renderData = contacts ? filterData.map((item, i) => {
+
+    // ------------------Conditional render data -------------------------
+    const renderData = filterData.length ? filterData.map((item, i) => {
         return (
             <tr key={i} onClick={() => sayHi(item.IdMasterData)}>
                 <td>{i}</td>
@@ -65,7 +66,22 @@ function MasterContact() {
                 </td>
             </tr>
         )
-    }) : null
+    }) : contacts && contacts.map((item, i) => {
+        return (
+            <tr key={i}>
+                <td>{i}</td>
+                <td>{item.Type}</td>
+                <td>{item.Name}</td>
+                <td>{item.Email}</td>
+                <td>{item.Phone}</td>
+                <td>{item.FAX}</td>
+                <td>
+                    <PopupEditContact/>
+                </td>
+            </tr>
+        )
+    })
+    // ------------------Conditional render data -------------------------
 
     return (
         <div >         
@@ -82,7 +98,7 @@ function MasterContact() {
 
                     <Col >
                         <div class="col float-end">
-                            <Button variant="success" size="sm" onClick={() => dispatch(openContactModal())} >
+                            <Button variant="success" size="sm" onClick={() => dispatch({ type: 'OPEN_CON', payload: true })} >
                                 Add Contact
                             </Button>
                         </div>

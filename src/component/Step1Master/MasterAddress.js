@@ -8,8 +8,7 @@ import PopupEditAddress from '../Step2PopupEdit/PopupEditAddress';
 
 function MasterAddress() {
     const dispatch = useDispatch()
-    const address = useSelector(state => state.masterDatas.address) // from redux store
-    console.log(address)
+    const address = useSelector(state => state.addresses.addresses.data) // from redux store
    
     const [show, setShow] = useState(false);
     const handleClose = function (m) {
@@ -25,7 +24,7 @@ function MasterAddress() {
         Axios.get('http://localhost:5000/api/address', { withCredentials: true })
         .then(res => {
             // setContacts(res.data.recordset)
-            dispatch({type: 'SET_ADDRESS', payload: res.data.recordset})
+            dispatch({type: 'SET_ADDRESSES', payload: res.data.recordset})
         })
         .catch(err => {
             console.error(err)

@@ -5,14 +5,15 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux'
 import { createStore, applyMiddleware } from 'redux'
-import reducer from './redux/reducer'
+import rootReducer from './redux/index'
 import thunk from 'redux-thunk'
 // import { loadJwt, saveJwt } from './redux/localStorage'
 
 // const persistedState = loadJwt();
 // load external state and set it as local state in redux
+
 const store = createStore(
-  reducer,
+  rootReducer,
   applyMiddleware(thunk)
 )
 

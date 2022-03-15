@@ -11,7 +11,7 @@ const SearchFilter = ({ masterData }) => {
                 <FormControl
                 aria-label="Default"
                 aria-describedby="inputGroup-sizing-default"
-                placeholder="Search filter by Name"
+                placeholder="Search filter by Name or Email address"
                 />
             </InputGroup>
         </>

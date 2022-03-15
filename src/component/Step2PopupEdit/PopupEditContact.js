@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux'
 
 function PopupEditContact() {
     // -------- REDUX STORE -------------- ✔️✔️✔️✔️✔️✔️✔️✔️✔️✔️✔️✔️
-    const contacts = useSelector(state => state.masterDatas.contact) // 👈👈👈👈👈👈👈👈👈👈👈👈👈
+    const contacts = useSelector(state => state.contacts.contacts.data) // 👈👈👈👈👈👈👈👈👈👈👈👈👈
     // -------- REDUX STORE --------------
     const [show, setShow] = useState(false);
 

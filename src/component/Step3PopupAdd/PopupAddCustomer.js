@@ -4,10 +4,10 @@ import { useSelector, useDispatch } from 'react-redux'
 import axios from "axios";
 
 function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
-    const stateCustomerModal = useSelector(state => state.modals.customer)
+    const stateCustomerModal = useSelector(state => state.modals.modals.customer)
 
     //-------- Redux store -----
-    const customers = useSelector(state => state.masterDatas.customer)
+    const customers = useSelector(state => state.customers.customers.data)
     const dispatch = useDispatch()
     //-------- Redux store -----
 
@@ -46,7 +46,6 @@ function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
             axios.post('http://localhost:5000/api/customer', customerData, { withCredentials: true })
             .then((response) => { 
                 setSpinnerState(false) // stop loading animation
-                console.log(response) 
                 dispatch({type: 'UPDATE_CUSTOMER', payload: {
                     Type: customerData.CustomerType,
                     Name: customerData.CustomerName,

@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { Button, Table } from 'react-bootstrap'
+import { Button, Table, Row, Col } from 'react-bootstrap'
 import Axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux'
 import { openCustomerModal, closeCustomerModal } from '../../redux/actions'
+import PopupEditCustomer from '../Step2PopupEdit/PopupEditCustomer';
+import SearchFilter from '../SearchFilter'
 
 function MasterCustomer() {
+     // ---------- REDUX STATE --------------
     const dispatch = useDispatch()
-    const customers = useSelector(state => state.masterDatas.customer)
+    const customers = useSelector(state => state.customers.customers.data)
+     // ---------- REDUX STATE --------------
 
-    // const [customer, setCustomer] = React.useState([]);
+    // ---------- LOCAL STATE --------------
+    const [ filterData, setFilterData ] = useState([])
     const [show, setShow] = useState(false);
     const handleClose = function(m) {
         setShow(m);
@@ -18,7 +23,7 @@ function MasterCustomer() {
         // setShow(true)
         // console.log(show);
     };
-    
+    // ---------- LOCAL STATE --------------
     
     React.useEffect(() => {
         Axios.get('http://localhost:5000/api/customer', { withCredentials: true })
@@ -31,28 +36,63 @@ function MasterCustomer() {
         })
     }, [])
 
-    const renderData = customers ? customers.map((item, i) => {
-        return(
-            <tr key={i} >
+    const sayHi = (id) => alert(`ID: ${id} 😀`)
+
+    const filterCustomers = (text) => {
+        const res = customers.filter(item => item.Name.toLowerCase().match(text.toLowerCase()) || item.Email.toLowerCase().match(text.toLowerCase()))
+        setFilterData(res)
+        
+    }
+
+
+    // ------------------Conditional render data -------------------------
+    const renderData = filterData.length ? filterData.map((item, i) => {
+        return (
+            <tr key={i} onClick={() => sayHi(item.IdMasterData)}>
                 <td>{i}</td>
                 <td>{item.Type}</td>
-                <td>{item.Company}</td>
+                <td>{item.Name}</td>
                 <td>{item.Email}</td>
                 <td>{item.Phone}</td>
                 <td>{item.FAX}</td>
+                <td>
+                    <PopupEditCustomer/>
+                </td>
             </tr>
         )
-    }) : null
+    }) : customers && customers.map((item, i) => {
+        return (
+            <tr key={i}>
+                <td>{i}</td>
+                <td>{item.Type}</td>
+                <td>{item.Name}</td>
+                <td>{item.Email}</td>
+                <td>{item.Phone}</td>
+                <td>{item.FAX}</td>
+                <td>
+                    <PopupEditCustomer/>
+                </td>
+            </tr>
+        )
+    })
+    // ------------------Conditional render data -------------------------
 
     return (
         <div >
-            <div class="col float-end">
-                <Button variant="success" size="sm" onClick={() => dispatch(openCustomerModal())} >
-                    Add Customer
-                </Button>
-                
-            </div>
-            <br/><br/>
+             <Row>
+                    <Col >
+                        <SearchFilter masterData={ filterCustomers }/>                      
+                    </Col>
+
+                    <Col >
+                        <div class="col float-end">
+                            <Button variant="success" size="sm" onClick={() => dispatch({ type: 'OPEN_CUS', payload: true })} >
+                                Add Customer
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
+            <br/>
 
             <Table striped bordered hover size="sm">
                 <thead>

@@ -11,11 +11,13 @@ import { closeCustomerModal } from '../../redux/actions'
 function PopupCustomer() {
 
     // ------- redux store ------
-    const stateCustomerModal = useSelector(state => state.modals.customer)
-    const userData = useSelector(state => state.user.data)
+    const stateCustomerModal = useSelector(state => state.modals.modals.customer)
+    const userData = useSelector(state => state.user.user.data)
     const dispatch = useDispatch();
-    const contact = useSelector(state => state.masterDatas.contact)
-    const address  = useSelector(state => state.masterDatas.address)
+    const contact = useSelector(state => state.contacts.contacts.data)
+    const address  = useSelector(state => state.addresses.addresses.data)
+
+    console.log('contact', contact)
     // ------- redux store ------
 
     const navigate = useNavigate();
@@ -57,7 +59,6 @@ function PopupCustomer() {
 
     const handleSubmit = async function (e) {
         e.preventDefault();
-        console.log('hi')
         const customerData = {
             CustomerType : CustomerType,
             CustomerName : CustomerName,
@@ -78,7 +79,6 @@ function PopupCustomer() {
                 IdMasterData: output_id
             }
             setLastCustomer(updateCustomerConstants)
-            console.log(res)
             dispatch({type: 'UPDATE_CUSTOMER', payload: updateCustomerConstants}) 
         }catch(err) {
             console.log(err)
@@ -86,7 +86,7 @@ function PopupCustomer() {
     };
 
     const handleCloseModal = () => {
-        dispatch(closeCustomerModal())
+        dispatch({type: 'CLOSE_CUS', payload: false})
         setLastCustomer(null)
         setCustomerType('')
         setCustomerName('')
@@ -102,7 +102,6 @@ function PopupCustomer() {
             //addID no
             const res
              = await axios.post('http://localhost:5000/api/customer/bind', { conID:  childID, cusID: lastCustomer.IdMasterData}, { withCredentials: true })
-            console.log(res)
             // filterRelationCustomer(childID)
         }catch(err) {
             console.log(err)
@@ -120,7 +119,7 @@ function PopupCustomer() {
             <Modal
                 size="xl"
                 show={stateCustomerModal}
-                onHide={() => dispatch(closeCustomerModal())}
+                onHide={() => dispatch({type: 'CLOSE_CUS', payload: false})}
                 backdrop="static"
                 keyboard={false}
                 noValidate validated={validated} 
@@ -173,11 +172,18 @@ function PopupCustomer() {
                             <Button variant="success" size="sm"  type="submit"onClick={handleSubmit}>Save</Button>
                     </Form> :
                          <>
-                            <small>ID: {lastCustomer.IdMasterData}</small>
-                            <h1>{lastCustomer.Name}</h1>
-                            <h4>Phone: {lastCustomer.Phone}</h4>
-                            <h4>Email: {lastCustomer.Email}</h4>
-                            <h4>FAX: {lastCustomer.FAX}</h4>
+                            <Row>
+                                <small>ID : {lastCustomer.IdMasterData}</small>
+                                <h1>Customer name :{lastCustomer.Name}</h1>
+                            </Row>
+                            <Row>
+                                <Col><h4>Phone : {lastCustomer.Phone}</h4></Col>
+                                <Col><h4>Email : {lastCustomer.Email}</h4></Col>
+                                <Col><h4>FAX : {lastCustomer.FAX}</h4></Col>                    
+                            </Row>
+                            
+                            
+                            
                         </>
                     }
 

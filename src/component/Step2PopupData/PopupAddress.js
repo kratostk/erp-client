@@ -8,10 +8,10 @@ import PopupAddCustomer from '../Step3PopupAdd/PopupAddCustomer';
 
 function PopupAddress() {
      // ------- redux store ------
-     const stateAddressModal = useSelector(state => state.modals.address)
-     const userData = useSelector(state => state.user.data)
+     const stateAddressModal = useSelector(state => state.modals.modals.address)
+     const userData = useSelector(state => state.user.user.data)
      const dispatch = useDispatch();
-     const customers = useSelector(state => state.masterDatas.customer)    
+     const customers = useSelector(state => state.customers.customers.data)    
      // ------- redux store ------
  
      const navigate = useNavigate();
@@ -78,7 +78,7 @@ function PopupAddress() {
     };
 
     const handleCloseModal = () => {
-        dispatch(closeAddressModal())
+        dispatch({type: 'CLOSE_ADD', payload: false})
         setLastAddress(null)
         setAddressType('')
         setAddressName('')
@@ -211,15 +211,21 @@ function PopupAddress() {
                         </Form> :
                             <>
                                 <small>ID: {lastAddress.IdMasterData}</small>
-                                <h1>{lastAddress.Name}</h1>
-                                <h4>Phone: {lastAddress.Type}</h4>
-                                <h4>Description: {lastAddress.Description}</h4>
-                                <h4>AddressNumber: {lastAddress.Number}</h4>
-                                <h4>Building: {lastAddress.Building}</h4>
-                                <h4>SubDistrict: {lastAddress.SubDistrict}</h4>
-                                <h4>District: {lastAddress.District}</h4>
-                                <h4>Province: {lastAddress.Province}</h4>
-                                <h4>PostalCode: {lastAddress.PostalCode}</h4>
+                                <Row>
+                                    <Col><h1>Address name : {lastAddress.Name}</h1></Col>
+                                    <Col><h4>Address type : {lastAddress.Type}</h4></Col>
+                                    <Col><h4>Description: {lastAddress.Description}</h4></Col>
+                                </Row>
+                                <Row>
+                                    <Col><h4>AddressNumber: {lastAddress.Number}</h4></Col>
+                                    <Col><h4>Building: {lastAddress.Building}</h4></Col>
+                                    <Col><h4>SubDistrict: {lastAddress.SubDistrict}</h4></Col>
+                                </Row>
+                                <Row>
+                                    <Col><h4>District: {lastAddress.District}</h4></Col>
+                                    <Col><h4>Province: {lastAddress.Province}</h4></Col>
+                                    <Col><h4>PostalCode: {lastAddress.PostalCode}</h4></Col>
+                                </Row>                                         
                             </>
                         }
                        

@@ -2,35 +2,40 @@ import PopupAddCustomer from '../Step3PopupAdd/PopupAddCustomer';
 import React, { useState } from 'react';
 import { Modal, Button, Table, Form, Col, Row, Container, Alert, Card, Spinner } from 'react-bootstrap'
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux'
 import { closeContactModal } from '../../redux/actions'
 
 
 function PopupContact() {
-    // ------- redux store ------
-    const stateContactModal = useSelector(state => state.modals.contact)
-    const userData = useSelector(state => state.user.data)
+    // *********************** REDUX STORE ***********************\\
     const dispatch = useDispatch();
-    const customers = useSelector(state => state.masterDatas.customer)
-    console.log('customers', customers)
-    // ------- redux store ------
+    const stateContactModal = useSelector(state => state.modals.modals.contact)
+    const userData = useSelector(state => state.user.user.data)
+    const customers = useSelector(state => state.customers.customers.data)
+    const customerContacts = useSelector(state => state.relationships.customerContacts) // -> filter
+    // *********************** REDUX STORE ***********************\\
 
-    const navigate = useNavigate();
 
-    // ------- Local state -------
+    // *********************** LOCAL STATES ***********************\\
     const [ lastContact, setLastContact ] = useState(null)
     const [ childID, setChildID ] = useState(null)
     const [ spinnerState, setSpinnerState ] = useState(false)
-    // ------- Local state -------
+    const [ mockupRelationData, setMockupRelationData ] = useState([])
+    const [ contactsArr, setContactsArr ] = useState([])
+    //-------------------
+    const [ContactType, setContactType] = useState(null);
+    const [ContactName, setContactName] = useState('');
+    const [ContactPhone, setContactPhone] = useState('');
+    const [ContactEmail, setContactEmail] = useState('');
+    const [ContactFAX, setContactFAX] = useState('');
+    const [validated, setValidated] = useState(false);
+    // *********************** LOCAL STATES ***********************\\
 
     const getSelectedCustomerID = (id) => {
         setChildID(id)
     }
-    console.log('new Added contactID', lastContact)
-    console.log('childID', childID)
-    //-------- Function validated  ------------
-    const [validated, setValidated] = useState(false);
+
+    //************************** Validated && Popup handling Functions  **************************\\
 
     const validatedSubmit = (event) => {
       const form = event.currentTarget;
@@ -41,18 +46,29 @@ function PopupContact() {
   
       setValidated(true);
     };
+    const handleCloseModal = () => {
+        dispatch({type: 'CLOSE_CON', payload: false})
+        setLastContact(null)
+        setContactType('')
+        setContactName('')
+        setContactPhone('')
+        setContactEmail('')
+        setContactFAX('')
+        setContactsArr([])
+    }
+    //************************** Validated && Popup handling Functions  **************************\\
+
+    const handleFilterRelationData = (id) => {
+        
+        const res = customers.filter(item => item.IdMasterData === id)
+        setMockupRelationData(res)
+        setChildID(null)
+    }
 
     
-    //-------- Post request contact ------------
-    const [ContactType, setContactType] = useState(null);
-    const [ContactName, setContactName] = useState('');
-    const [ContactPhone, setContactPhone] = useState('');
-    const [ContactEmail, setContactEmail] = useState('');
-    const [ContactFAX, setContactFAX] = useState('');
-
+    // ************************************* SUBMIT && FILTER HANDLING ***********************************\\
     const handleSubmit = async function (e) {
         e.preventDefault();
-        console.log('hi')
         const contactData = {
             ContactType : ContactType,
             ContactName : ContactName,
@@ -73,69 +89,77 @@ function PopupContact() {
                 IdMasterData: output_id
             }
             setLastContact(updateContactConstants)
-            console.log(res)
             dispatch({type: 'UPDATE_CONTACT', payload: updateContactConstants}) 
         }catch(err) {
             console.log(err)
         }
     };
 
-    const handleCloseModal = () => {
-        dispatch(closeContactModal())
-        setLastContact(null)
-        setContactType('')
-        setContactName('')
-        setContactPhone('')
-        setContactEmail('')
-        setContactFAX('')
-    }
-
-
     const handleRelationSubmit = async () => {
         try {
             const res = await axios.post('http://localhost:5000/api/contact/bind', { cusID:  childID, conID: lastContact.IdMasterData}, { withCredentials: true })
-            console.log(res)
             // TODO: we need nothing from server response but status so we can react accordingly
             // dispatch selected customerID to redux store of master data relationship 
+            dispatch({ type: 'UPDATE_REL_CONTACT_CUSTOMER', payload: { cusID:  childID, conID: lastContact.IdMasterData}})
+            // handleFilterRelationData(childID)
+            //filterRelationCustomer(lastContact.IdMasterData) // <--- x
+            // console.log('hi')
+            // setChildID(null)
+            setChildID(null) // for hiding selected customer     
         }catch(err) {
             console.log(err)
         }
     }
-
-    const filterRelationCustomer = (id) => {
+    const renderSelectedCustomer = (id) => {
         const f = customers.filter(c => c.IdMasterData == id)
-        console.log(id)
-        console.log(f)
-        return f.map(n => (
-            <>
+
+        return f.map((n, i) => (
+            <div key={i}>
                 <hr/>
                 <h3>Selected Customer</h3>
                 <small>Status: Pending</small>
                 <p>ID: <code>{n.IdMasterData}</code></p>
                 <p>Name: <b>{n.Company}</b></p>
                 <p>Email: <b>{n.Email}</b></p>
-            </>
+            </div>
         ))
     }
 
-    // TODO: must filter data accordingly to contact ID
-    // const renderData = customers ? filterRelationCustomer.map((item, i) => {
-    //     return(
-            // <tr key={i}>
-            //     <td>{item.Id}</td>
-            //     <td>{item.Type}</td>
-            //     <td>{item.Company}</td>
-            //     <td>{item.Email}</td>
-            //     <td>{item.Phone}</td>
-            //     <td>{item.FAX}</td>
-            // </tr>
-    //     )
-    // }) : null
+    const filterRelationCustomer = (contact_ID) => {
+        //1 filter contactID out of relationship collection
+        if(!contact_ID) return null;
+
+        const collectionOfTargetContactID = customerContacts.filter(item => item.conID === contact_ID.IdMasterData)
+        // {conID: 0, cusID: 1},
+        // {conID: 0, cusID: 2},
+        // ...
+
+        let res = []
+        for(let i = 0; i < collectionOfTargetContactID.length; i++) {
+            for(let j = 0; j < customers.length; j++) {
+              if(collectionOfTargetContactID[i].cusID === customers[j].IdMasterData){
+                res.push(customers[j])
+                // setState
+                // setContactsArr(prev => [...prev, customers[j]])
+              }
+            }
+        }
+        
+        setContactsArr(res)  
+    }
+
+    // ************************************* SUBMIT && FILTER HANDLING ***********************************\\
+
     
+    React.useEffect(() => {
+        filterRelationCustomer(lastContact)
+    }, [customerContacts, lastContact, childID])
+
+
+
     
     return (
         <>  
-            
 
             <Modal
                 size="xl"
@@ -145,14 +169,7 @@ function PopupContact() {
                 keyboard={false}
                 className="alert-fixed"
             >
-                {/* <Alert variant="danger" dismissible>
-                    <Alert.Heading>Oh snap! You got an error!</Alert.Heading>
-                    <p>
-                    Change this and that and try again. Duis mollis, est non commodo
-                    luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.
-                    Cras mattis consectetur purus sit amet fermentum.
-                    </p>
-                </Alert> */}
+                
                 <Modal.Header closeButton>
                     <Modal.Title className='modal-header'>Contact Detail</Modal.Title>                                  
                 </Modal.Header>
@@ -237,15 +254,10 @@ function PopupContact() {
                         <p>Phone: {lastContact.Phone}</p>
                         <p>Email: {lastContact.Email}</p>
 
-                        { filterRelationCustomer(childID) }
-
-                        {/* {childID && customers.filter(customer => customer.IdMasterData === childID ? (
-                            <>
-                                <code>CustomerID : {customer.IdMasterData}</code>
-                                <code>Customer Name : {customer.Company}</code>
-                                <code>Customer Email : {customer.Email}</code>
-                            </>
-                        ) : null)} */}
+                        
+                        {/* render selected customer :)*/}
+                        { renderSelectedCustomer(childID) }
+                        
                         
                     </>
                 }
@@ -269,9 +281,18 @@ function PopupContact() {
                             </tr>
                         </thead>
                         <tbody>
-                            {/* { filterRelationCustomer('dkaejda').map(c => (
-                                <>{c.IdMasterData}</>
-                            )) } */}
+    
+                            { contactsArr ? contactsArr.map((item, i) => (
+                                <tr key={i}>
+                                    <td>{item.Id}</td>
+                                    <td>{item.Type}</td>
+                                    <td>{item.Company}</td>
+                                    <td>{item.Email}</td>
+                                    <td>{item.Phone}</td>
+                                    <td>{item.FAX}</td>
+                                </tr>
+                            )): null}
+  
                         </tbody>
                     </Table>
                 </Modal.Body>
