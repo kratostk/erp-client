@@ -18,7 +18,7 @@ const customerReducer = (state = initState, action) => {
                     data: state.customers.data = action.payload
                 }
             }
-        case "UPDATE_CUSTOMER":
+        case "ADD_CUSTOMER":
             console.log(action)
             return {
                 ...state,

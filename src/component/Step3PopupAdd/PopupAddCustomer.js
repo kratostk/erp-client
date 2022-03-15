@@ -1,34 +1,39 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Col, Row, Spinner } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
-import axios from "axios";
+import { addCustomer } from '../../redux/customer/asyncActions'
 
 function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
     const stateCustomerModal = useSelector(state => state.modals.modals.customer)
 
-    //-------- Redux store -----
+    //**************************** Redux store ****************************\\
     const customers = useSelector(state => state.customers.customers.data)
     const dispatch = useDispatch()
-    //-------- Redux store -----
+    //**************************** Redux store ****************************\\
 
 
+    //**************************** LOCAL STATE *****************************\\
     const [ checkboxState, setCheckboxState ] = useState(false)
     const [ spinnerState, setSpinnerState ] = useState(false)
-
-    //-------- Modal ------------
+    const [ selectedCustomerID, setSelectedCustomerID ] = useState(null)
+    //----------------------
     const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
-
-    //-------- Axios ------------
     const [CustomerType, setCustomerType] = useState('');
     const [CustomerName, setCustomerName] = useState('');
     const [CustomerPhone, setCustomerPhone] = useState('');
     const [CustomerEmail, setCustomerEmail] = useState('');
     const [CustomerFAX, setCustomerFAX] = useState('');
-    
+    //**************************** LOCAL STATE *****************************\\
 
-    // ----- Handle Save button ------
+    //************************* Modal Handle Function *************************//
+    const handleClose = () => {
+        setCheckboxState(false)
+        setShow(false)
+    };
+    const handleShow = () => setShow(true);
+    //************************* Modal Handle Function *************************//
+
+    // ************************* Save Function *************************//
     const handleSave = (e) => {
         e.preventDefault();
         
@@ -43,34 +48,26 @@ function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
                 
             };
             setSpinnerState(true)
-            axios.post('http://localhost:5000/api/customer', customerData, { withCredentials: true })
-            .then((response) => { 
+            dispatch(addCustomer(customerData)) // <-- return promise
+            .then(id => {
                 setSpinnerState(false) // stop loading animation
-                dispatch({type: 'UPDATE_CUSTOMER', payload: {
-                    Type: customerData.CustomerType,
-                    Name: customerData.CustomerName,
-                    Phone: customerData.CustomerPhone,
-                    Email: customerData.CustomerEmail,
-                    FAX: customerData.CustomerFAX,
-                    IdMasterData: response.data.data.output_id
-                }}) // update local master customer data in redux store
-                getSelectedCustomerID(response.data.data.output_id) // set just created row id to be used to reference in relation table
+                getSelectedCustomerID(id) // set just created row id to be used to reference in relation table
                 handleClose()
-            }).catch(err => {
+            })
+            .catch(err => {
                 setSpinnerState(false)
                 console.log(err)
             })
         }else {
-            // just close the modal
+            // SELECT CUSTOMER FROM EXISTING DATA
+
+            // set selected ID to setState of parent component
+            getSelectedCustomerID(selectedCustomerID)
             handleClose()
         }
     }
+    // ************************* Save Function *************************//
 
-    const renderData = customers ? customers.map((item, i) => {
-        return(
-            <option key={i}>{item.Company}</option>            
-        )
-    }): null
     
     
     return (
@@ -98,6 +95,7 @@ function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
                         <Form>
                             <Row className="mb-3">
                                 <Form.Check 
+                                    value={checkboxState}
                                     type="switch"
                                     id="custom-switch"
                                     label="From existing customer"
@@ -106,16 +104,16 @@ function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
                             </Row>
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="CustomerDropdown">
-                                    <Form.Label>Customer</Form.Label>
+                                    <Form.Label>Select Customers</Form.Label>
                                     <Form.Select 
-                                        onChange={(e) => getSelectedCustomerID(e.target.value)} 
+                                        onChange={(e) => setSelectedCustomerID(e.target.value)} 
                                         disabled={!checkboxState} 
                                         defaultValue="Please select Customer">
-                                        {/* <option onSelect={(e) => console.log(e)}>Please select Customer</option> */}
-                                        {/* { renderData } */}
+
                                         { customers && customers.map((item, i) => (
                                             <option value={item.IdMasterData} label={item.Company} key={i}/>
                                         ))}
+
                                     </Form.Select>
                                     
                                 </Form.Group>
@@ -125,7 +123,11 @@ function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="CustomerTypeDropdown">
                                     <Form.Label>Customer type</Form.Label>
-                                    <Form.Select disabled={checkboxState} defaultValue="Please select Customer type">
+                                    <Form.Select 
+                                        onChange={(e) => setCustomerType(e.target.value)}
+                                        disabled={checkboxState} 
+                                        defaultValue="Please select Customer type"
+                                    >
                                         <option value="personal">Personal</option>
                                         <option value="company">Company</option>
                                     </Form.Select>

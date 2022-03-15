@@ -17,7 +17,6 @@ function PopupCustomer() {
     const contact = useSelector(state => state.contacts.contacts.data)
     const address  = useSelector(state => state.addresses.addresses.data)
 
-    console.log('contact', contact)
     // ------- redux store ------
 
     const navigate = useNavigate();
@@ -34,8 +33,7 @@ function PopupCustomer() {
     const getSelectedAddressID = (id) => {
         setChildID(id)
     }
-    console.log('new Added contactID', lastCustomer)
-    console.log('childID', childID)
+
     //-------- Function validated  ------------
     const [validated, setValidated] = useState(false);
 
@@ -97,7 +95,6 @@ function PopupCustomer() {
 
 
     const handleRelationSubmit = async () => {
-        // console.log('bind', lastContact.IdMasterData)
         try {
             //addID no
             const res

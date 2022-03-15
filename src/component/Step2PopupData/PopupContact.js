@@ -20,8 +20,8 @@ function PopupContact() {
     // *********************** LOCAL STATES ***********************\\
     const [ lastContact, setLastContact ] = useState(null)
     const [ childID, setChildID ] = useState(null)
-    const [ spinnerState, setSpinnerState ] = useState(false)
-    const [ mockupRelationData, setMockupRelationData ] = useState([])
+    const [ submitBtnSpinner, setSubmitBtnSpinner ] = useState(false)
+    const [ saveBtnSpinner, setSaveBtnSpinner ] = useState(false)
     const [ contactsArr, setContactsArr ] = useState([])
     //-------------------
     const [ContactType, setContactType] = useState(null);
@@ -63,6 +63,7 @@ function PopupContact() {
     // ************************************* SUBMIT && FILTER HANDLING ***********************************\\
     const handleAddContact = async function (e) {
         e.preventDefault();
+        setSaveBtnSpinner(true)
         const contactData = {
             ContactType : ContactType,
             ContactName : ContactName,
@@ -73,25 +74,29 @@ function PopupContact() {
         };
         try {
             dispatch(addContact(contactData))
-            .then(data => setLastContact(data)) // from promise 
+            .then(data => {
+                setLastContact(data)
+                setSaveBtnSpinner(false)
+            }) // from promise 
 
         }catch(err) {
             console.log(err)
+            setSaveBtnSpinner(false)
         }
     };
 
     const handleRelationSubmit = async () => {
-        setSpinnerState(true)
+        setSubmitBtnSpinner(true)
         try {
             const res = await axios.post('http://localhost:5000/api/contact/bind', { cusID:  childID, conID: lastContact.IdMasterData}, { withCredentials: true })
             // TODO: we need nothing from server response but status so we can react accordingly
             // dispatch selected customerID to redux store of master data relationship 
             dispatch({ type: 'UPDATE_REL_CONTACT_CUSTOMER', payload: { cusID:  childID, conID: lastContact.IdMasterData}})
             setChildID(null) // for hiding selected customer
-            setSpinnerState(false)     
+            setSubmitBtnSpinner(false)     
         }catch(err) {
             console.log(err)
-            setSpinnerState(false)  
+            setSubmitBtnSpinner(false)  
         }
     }
     const renderSelectedCustomer = (id) => {
@@ -230,7 +235,18 @@ function PopupContact() {
                             </Form.Control.Feedback>
                         </Form.Group>
                     </Row>
-                    <Button variant="success" size="sm"  type="submit"onClick={ handleAddContact }>Save</Button>
+                    <Button variant="success" size="sm"  type="submit"onClick={ handleAddContact }>
+                        {saveBtnSpinner ? (
+                                <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                            />
+                        ): null}
+                        Save
+                    </Button>
                 </Form> :
                     <>
                         <small>ID: <code>{lastContact.IdMasterData}</code></small>
@@ -268,7 +284,7 @@ function PopupContact() {
     
                             { contactsArr ? contactsArr.map((item, i) => (
                                 <tr key={i}>
-                                    <td>{item.Id}</td>
+                                    <td>{i}</td>
                                     <td>{item.Type}</td>
                                     <td>{item.Company}</td>
                                     <td>{item.Email}</td>
@@ -283,7 +299,7 @@ function PopupContact() {
                 <Modal.Footer>                    
                     <Button variant="success" size="sm" onClick={handleRelationSubmit} 
                     >
-                        {spinnerState ? (
+                        {submitBtnSpinner ? (
                             <Spinner
                             as="span"
                             animation="border"

@@ -24,8 +24,6 @@ function PopupAddress() {
      const getSelectedCustomerID = (id) => {
         setChildID(id)
     }
-    console.log('new Added addressID', lastAddress)
-    console.log('childID', childID)
 
       //-------- Post request contact ------------
     const [AddressType, setAddressType] = useState('');
@@ -39,8 +37,6 @@ function PopupAddress() {
     const [AddressPostalCode, setAddressPostalCode] = useState('');
 
     const handleSubmit = async function (e) {
-        console.log('hit submit Address')
-        alert('hi')
         e.preventDefault();
         const addressData = {
             AddressType: AddressType,
@@ -70,7 +66,6 @@ function PopupAddress() {
                 IdMasterData: output_id
             }
             setLastAddress(updateAddressConstants)
-            console.log(res)
             dispatch({type: 'UPDATE_ADDRESS', payload: updateAddressConstants}) 
         }catch(err) {
             console.log(err)
@@ -92,10 +87,8 @@ function PopupAddress() {
     }
 
     const handleRelationSubmit = async () => {
-        // console.log('bind', lastContact.IdMasterData)
         try {
             const res = await axios.post('http://localhost:5000/api/address/bind', { cusID:  childID, addID: lastAddress.IdMasterData}, { withCredentials: true })
-            console.log(res)
             // filterRelationCustomer(childID)
         }catch(err) {
             console.log(err)
