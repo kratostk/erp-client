@@ -4,6 +4,7 @@ import { Modal, Button, Table, Form, Col, Row, Container, Alert, Card, Spinner }
 import axios from "axios";
 import { useSelector, useDispatch } from 'react-redux'
 import { closeContactModal } from '../../redux/actions'
+import { addContact } from '../../redux/contact/asyncActions'
 
 
 function PopupContact() {
@@ -58,16 +59,9 @@ function PopupContact() {
     }
     //************************** Validated && Popup handling Functions  **************************\\
 
-    const handleFilterRelationData = (id) => {
-        
-        const res = customers.filter(item => item.IdMasterData === id)
-        setMockupRelationData(res)
-        setChildID(null)
-    }
-
     
     // ************************************* SUBMIT && FILTER HANDLING ***********************************\\
-    const handleSubmit = async function (e) {
+    const handleAddContact = async function (e) {
         e.preventDefault();
         const contactData = {
             ContactType : ContactType,
@@ -78,36 +72,26 @@ function PopupContact() {
             user : userData
         };
         try {
-            const res = await axios.post('http://localhost:5000/api/contact', contactData, { withCredentials: true })
-            const { output_id } = res.data.data;
-            const updateContactConstants = {
-                Name: contactData.ContactName,
-                Type: contactData.ContactType,
-                Phone: contactData.ContactPhone,
-                Email: contactData.ContactEmail,
-                FAX: contactData.ContactFAX,
-                IdMasterData: output_id
-            }
-            setLastContact(updateContactConstants)
-            dispatch({type: 'UPDATE_CONTACT', payload: updateContactConstants}) 
+            dispatch(addContact(contactData))
+            .then(data => setLastContact(data)) // from promise 
+
         }catch(err) {
             console.log(err)
         }
     };
 
     const handleRelationSubmit = async () => {
+        setSpinnerState(true)
         try {
             const res = await axios.post('http://localhost:5000/api/contact/bind', { cusID:  childID, conID: lastContact.IdMasterData}, { withCredentials: true })
             // TODO: we need nothing from server response but status so we can react accordingly
             // dispatch selected customerID to redux store of master data relationship 
             dispatch({ type: 'UPDATE_REL_CONTACT_CUSTOMER', payload: { cusID:  childID, conID: lastContact.IdMasterData}})
-            // handleFilterRelationData(childID)
-            //filterRelationCustomer(lastContact.IdMasterData) // <--- x
-            // console.log('hi')
-            // setChildID(null)
-            setChildID(null) // for hiding selected customer     
+            setChildID(null) // for hiding selected customer
+            setSpinnerState(false)     
         }catch(err) {
             console.log(err)
+            setSpinnerState(false)  
         }
     }
     const renderSelectedCustomer = (id) => {
@@ -246,7 +230,7 @@ function PopupContact() {
                             </Form.Control.Feedback>
                         </Form.Group>
                     </Row>
-                    <Button variant="success" size="sm"  type="submit"onClick={handleSubmit}>Save</Button>
+                    <Button variant="success" size="sm"  type="submit"onClick={ handleAddContact }>Save</Button>
                 </Form> :
                     <>
                         <small>ID: <code>{lastContact.IdMasterData}</code></small>
@@ -292,7 +276,7 @@ function PopupContact() {
                                     <td>{item.FAX}</td>
                                 </tr>
                             )): null}
-  
+
                         </tbody>
                     </Table>
                 </Modal.Body>

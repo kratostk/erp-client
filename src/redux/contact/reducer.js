@@ -18,14 +18,14 @@ const contactReducer = (state = initState, action) => {
                     data: state.contacts.data = action.payload
                 }
             }
-        case "UPDATE_CONTACT":
+        case "ADD_CONTACT":
             return {
                 ...state,
                 contacts: {
                     ...state.contacts,
                     isLoading: false,
                     error: null,
-                    data: [...state.contacts.data, action.payload]
+                    data: [ ...state.contacts.data, action.payload ]
                 }
             }
         default:

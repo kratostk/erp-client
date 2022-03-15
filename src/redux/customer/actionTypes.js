@@ -1,0 +1,1 @@
+export const setCustomers = 'SET_CUSTOMERS'

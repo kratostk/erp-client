@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { openAddressModal, closeAddressModal } from '../../redux/actions'
 import { BsPencilSquare } from "react-icons/bs";
 import PopupEditAddress from '../Step2PopupEdit/PopupEditAddress';
+import { getAddresses } from '../../redux/address/asyncActions'
 
 function MasterAddress() {
     const dispatch = useDispatch()
@@ -21,14 +22,7 @@ function MasterAddress() {
 
 
     React.useEffect(() => {
-        Axios.get('http://localhost:5000/api/address', { withCredentials: true })
-        .then(res => {
-            // setContacts(res.data.recordset)
-            dispatch({type: 'SET_ADDRESSES', payload: res.data.recordset})
-        })
-        .catch(err => {
-            console.error(err)
-        })
+        dispatch(getAddresses())
     }, [])
 
     const sayHi = (id) => alert(`ID: ${id} 😀`)

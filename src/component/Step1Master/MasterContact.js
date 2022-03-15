@@ -8,11 +8,13 @@ import PopupEditContact from '../Step2PopupEdit/PopupEditContact';
 //import BootstrapTable from 'react-bootstrap-table-next';  
 //import paginationFactory from 'react-bootstrap-table2-paginator';
 import SearchFilter from '../SearchFilter'
+import { getContacts } from '../../redux/contact/asyncActions'
 
 function MasterContact() {
     // ---------- REDUX STATE --------------
     const dispatch = useDispatch()
     const contacts = useSelector(state => state.contacts.contacts.data) // from redux store
+    const myContacts = useSelector(state => state.contacts.contacts)
     // ---------- REDUX STATE --------------
 
     // ---------- LOCAL STATE --------------
@@ -31,15 +33,7 @@ function MasterContact() {
     }; 
 
     React.useEffect(() => {
-        Axios.get('http://localhost:5000/api/contact', { withCredentials: true })
-        .then(res => {
-            // setContacts(res.data.recordset)
-            dispatch({type: 'SET_CONTACTS', payload: res.data.recordset})
-            // setFilterData(contacts)
-        })
-        .catch(err => {
-            console.error(err)
-        })
+        dispatch(getContacts()) // Fetch initial contacts data
     }, [])
 
     const sayHi = (id) => alert(`ID: ${id} 😀`)
@@ -52,6 +46,8 @@ function MasterContact() {
 
 
     // ------------------Conditional render data -------------------------
+
+
     const renderData = filterData.length ? filterData.map((item, i) => {
         return (
             <tr key={i} onClick={() => sayHi(item.IdMasterData)}>

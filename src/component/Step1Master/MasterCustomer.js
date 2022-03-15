@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { openCustomerModal, closeCustomerModal } from '../../redux/actions'
 import PopupEditCustomer from '../Step2PopupEdit/PopupEditCustomer';
 import SearchFilter from '../SearchFilter'
+import { getCustomers } from '../../redux/customer/asyncActions'
 
 function MasterCustomer() {
      // ---------- REDUX STATE --------------
@@ -26,14 +27,7 @@ function MasterCustomer() {
     // ---------- LOCAL STATE --------------
     
     React.useEffect(() => {
-        Axios.get('http://localhost:5000/api/customer', { withCredentials: true })
-        .then(res => {
-            // setCustomer(res.data.recordset)
-            dispatch({type: 'SET_CUSTOMERS', payload: res.data.recordset})
-        })
-        .catch(err => {
-            console.error(err)
-        })
+        dispatch(getCustomers())
     }, [])
 
     const sayHi = (id) => alert(`ID: ${id} 😀`)

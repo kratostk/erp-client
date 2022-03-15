@@ -1,0 +1,1 @@
+export const setAddresses = 'SET_ADDRESSES'
