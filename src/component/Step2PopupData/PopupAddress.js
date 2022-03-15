@@ -1,32 +1,26 @@
 import React, { useState } from 'react';
 import { Modal, Button, Table, Form, Col, Row, Container } from 'react-bootstrap'
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux'
 import { closeAddressModal } from '../../redux/actions'
 import PopupAddCustomer from '../Step3PopupAdd/PopupAddCustomer';
+import { addAddress } from '../../redux/address/asyncActions'
 
 function PopupAddress() {
-     // ------- redux store ------
+     // ******************************* REDUX STORE *******************************\\
+     const dispatch = useDispatch();
      const stateAddressModal = useSelector(state => state.modals.modals.address)
      const userData = useSelector(state => state.user.user.data)
-     const dispatch = useDispatch();
      const customers = useSelector(state => state.customers.customers.data)    
-     // ------- redux store ------
+     // ******************************* REDUX STORE *******************************\\
  
-     const navigate = useNavigate();
 
-     // ------- Local state -------
-     const [ lastAddress, setLastAddress ] = useState(null)
+     // ******************************* LOCAL STATES *******************************\\
+     const [ latestAddress, setLatestAddress ] = useState(null)
      const [ childID, setChildID ] = useState(null)
-     // ------- Local state -------
+     console.log( 'latest address' ,latestAddress)
 
-     const getSelectedCustomerID = (id) => {
-        setChildID(id)
-    }
-
-      //-------- Post request contact ------------
-    const [AddressType, setAddressType] = useState('');
+     const [AddressType, setAddressType] = useState('');
     const [AddressName, setAddressName] = useState('');
     const [AddressDescription, setAddressDescription] = useState('');
     const [AddressNumber, setAddressNumber] = useState('');
@@ -35,8 +29,15 @@ function PopupAddress() {
     const [AddressDistrict, setAddressDistrict] = useState('');
     const [AddressProvince, setAddressProvince] = useState('');
     const [AddressPostalCode, setAddressPostalCode] = useState('');
+     // ******************************* LOCAL STATES *******************************\\
+
+     const getSelectedCustomerID = (id) => {
+        setChildID(id)
+    }
+    
 
     const handleSubmit = async function (e) {
+        console.log('ho')
         e.preventDefault();
         const addressData = {
             AddressType: AddressType,
@@ -51,22 +52,12 @@ function PopupAddress() {
             user : userData
         };       
         try {
-            const res = await axios.post('http://localhost:5000/api/address', addressData, { withCredentials: true })
-            const { output_id } = res.data.data;
-            const updateAddressConstants = {
-                Name: addressData.AddressName,
-                Type: addressData.AddressType,
-                Description: addressData.AddressDescription,
-                Number: addressData.AddressNumber,
-                Building: addressData.AddressBuilding,
-                SubDistrict: addressData.AddressSubDistrict,
-                District: addressData.AddressDistrict,
-                Province: addressData.AddressProvince,
-                PostalCode: addressData.AddressPostalCode,
-                IdMasterData: output_id
-            }
-            setLastAddress(updateAddressConstants)
-            dispatch({type: 'UPDATE_ADDRESS', payload: updateAddressConstants}) 
+            dispatch(addAddress(addressData))
+            .then(address => {
+                setLatestAddress(address)
+                console.log('hi')
+            })
+ 
         }catch(err) {
             console.log(err)
         }
@@ -74,7 +65,7 @@ function PopupAddress() {
 
     const handleCloseModal = () => {
         dispatch({type: 'CLOSE_ADD', payload: false})
-        setLastAddress(null)
+        setLatestAddress(null)
         setAddressType('')
         setAddressName('')
         setAddressDescription('')
@@ -88,7 +79,7 @@ function PopupAddress() {
 
     const handleRelationSubmit = async () => {
         try {
-            const res = await axios.post('http://localhost:5000/api/address/bind', { cusID:  childID, addID: lastAddress.IdMasterData}, { withCredentials: true })
+            const res = await axios.post('http://localhost:5000/api/address/bind', { cusID:  childID, addID: latestAddress.IdMasterData}, { withCredentials: true })
             // filterRelationCustomer(childID)
         }catch(err) {
             console.log(err)
@@ -107,7 +98,7 @@ function PopupAddress() {
             <Modal
                 size="xl"
                 show={stateAddressModal}
-                onHide={() => dispatch(closeAddressModal())}
+                onHide={() => dispatch({ type: 'CLOSE_ADD' })}
                 backdrop="static"
                 keyboard={false}
             >
@@ -116,13 +107,14 @@ function PopupAddress() {
                 </Modal.Header>
                 <Modal.Body>
                     <div >
-                    { !lastAddress ? <Form>                           
+                    { !latestAddress ? <Form>                           
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="AddressTypeDropdown">
                                     <Form.Label>Address type</Form.Label>
                                     <Form.Select defaultValue="Please select Address type" value={AddressType} onChange={(e) => setAddressType(e.target.value)}>
                                         <option>Please select Address type</option>
-                                        <option>...</option>
+                                        <option value='public'>Public</option>
+                                        <option value='personal'>Personal</option>
                                     </Form.Select>
                                 </Form.Group>
 
@@ -200,30 +192,30 @@ function PopupAddress() {
                                         placeholder="PostalCode" />
                                 </Form.Group>
                             </Row>
-                            <Button variant="success" size="sm"  type="submit"onClick={handleSubmit}>Save</Button>
+                            <Button variant="success" size="sm"  type="submit"onClick={ handleSubmit }>Save</Button>
                         </Form> :
                             <>
-                                <small>ID: {lastAddress.IdMasterData}</small>
+                                <small>ID: {latestAddress.IdMasterData}</small>
                                 <Row>
-                                    <Col><h1>Address name : {lastAddress.Name}</h1></Col>
-                                    <Col><h4>Address type : {lastAddress.Type}</h4></Col>
-                                    <Col><h4>Description: {lastAddress.Description}</h4></Col>
+                                    <Col><h1>Address name : {latestAddress.Name}</h1></Col>
+                                    <Col><h4>Address type : {latestAddress.Type}</h4></Col>
+                                    <Col><h4>Description: {latestAddress.Description}</h4></Col>
                                 </Row>
                                 <Row>
-                                    <Col><h4>AddressNumber: {lastAddress.Number}</h4></Col>
-                                    <Col><h4>Building: {lastAddress.Building}</h4></Col>
-                                    <Col><h4>SubDistrict: {lastAddress.SubDistrict}</h4></Col>
+                                    <Col><h4>AddressNumber: {latestAddress.Number}</h4></Col>
+                                    <Col><h4>Building: {latestAddress.Building}</h4></Col>
+                                    <Col><h4>SubDistrict: {latestAddress.SubDistrict}</h4></Col>
                                 </Row>
                                 <Row>
-                                    <Col><h4>District: {lastAddress.District}</h4></Col>
-                                    <Col><h4>Province: {lastAddress.Province}</h4></Col>
-                                    <Col><h4>PostalCode: {lastAddress.PostalCode}</h4></Col>
+                                    <Col><h4>District: {latestAddress.District}</h4></Col>
+                                    <Col><h4>Province: {latestAddress.Province}</h4></Col>
+                                    <Col><h4>PostalCode: {latestAddress.PostalCode}</h4></Col>
                                 </Row>                                         
                             </>
                         }
                        
                     </div>
-                        <PopupAddCustomer isAddedAddress={lastAddress} getSelectedCustomerID={getSelectedCustomerID} />
+                        <PopupAddCustomer isAddedAddress={latestAddress} getSelectedCustomerID={getSelectedCustomerID} />
                         <br /><br />
                         
 
@@ -255,7 +247,7 @@ function PopupAddress() {
                     <Button variant="success" size="sm" onClick={handleRelationSubmit} >
                         Submit
                     </Button>
-                    <Button variant="secondary" onClick={() => dispatch(closeAddressModal())} size="sm">
+                    <Button variant="secondary" onClick={() => dispatch({ type: 'CLOSE_ADD' })} size="sm">
                         Close
                     </Button>
                 </Modal.Footer>

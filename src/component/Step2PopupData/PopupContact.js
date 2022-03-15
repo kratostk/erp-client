@@ -38,15 +38,6 @@ function PopupContact() {
 
     //************************** Validated && Popup handling Functions  **************************\\
 
-    const validatedSubmit = (event) => {
-      const form = event.currentTarget;
-      if (form.checkValidity() === false) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-  
-      setValidated(true);
-    };
     const handleCloseModal = () => {
         dispatch({type: 'CLOSE_CON', payload: false})
         setLastContact(null)
@@ -56,6 +47,7 @@ function PopupContact() {
         setContactEmail('')
         setContactFAX('')
         setContactsArr([])
+        setValidated(false)
     }
     //************************** Validated && Popup handling Functions  **************************\\
 
@@ -63,6 +55,18 @@ function PopupContact() {
     // ************************************* SUBMIT && FILTER HANDLING ***********************************\\
     const handleAddContact = async function (e) {
         e.preventDefault();
+
+        const form = e.currentTarget;
+        if (form.checkValidity() === false) {
+            // if form is invalid
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('form has error')
+            setValidated(true)
+            return false
+        }
+
+        // If form is valid then make a request
         setSaveBtnSpinner(true)
         const contactData = {
             ContactType : ContactType,
@@ -72,6 +76,7 @@ function PopupContact() {
             ContactFAX : ContactFAX,
             user : userData
         };
+        console.log('Form is validated!')
         try {
             dispatch(addContact(contactData))
             .then(data => {
@@ -83,6 +88,10 @@ function PopupContact() {
             console.log(err)
             setSaveBtnSpinner(false)
         }
+        
+
+        
+        
     };
 
     const handleRelationSubmit = async () => {
@@ -165,15 +174,18 @@ function PopupContact() {
                 <Modal.Body>
                 <div className="contactmodal" >
 
-                { !lastContact ?  <Form noValidate validated={validated} onSubmit={validatedSubmit}>
+                { !lastContact ?  <Form noValidate validated={validated} onSubmit={handleAddContact}>
                     <Row className="mb-3">
                         <Form.Group as={Col} controlId="ContactTypeDropdown">
                             <Form.Label>Contact type</Form.Label>
-                            <Form.Select onChange={(e) => setContactType(e.target.value)} >
-                                <option>Please select customer type</option>
+                            <Form.Select onChange={(e) => setContactType(e.target.value)} required >
+                                <option selected disabled value="">Please select customer type</option>
                                 <option value='customer'>Customer</option>
                                 <option value='employee'>Employee</option>
                             </Form.Select>
+                            <Form.Control.Feedback type="invalid">
+                                Please provide a valid Contact type.
+                            </Form.Control.Feedback>
                         </Form.Group>
 
                         <Form.Group as={Col} controlId="ContactNameInput">
@@ -198,7 +210,7 @@ function PopupContact() {
                                 placeholder="Email" 
                                 value={ContactEmail} 
                                 onChange={(e) => setContactEmail(e.target.value)}
-                                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                pattern="[A-Za-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                                 required 
                             />
                             <Form.Control.Feedback type="invalid">
@@ -235,7 +247,7 @@ function PopupContact() {
                             </Form.Control.Feedback>
                         </Form.Group>
                     </Row>
-                    <Button variant="success" size="sm"  type="submit"onClick={ handleAddContact }>
+                    <Button variant="success" size="sm"  type="submit">
                         {saveBtnSpinner ? (
                                 <Spinner
                                 as="span"
@@ -249,10 +261,18 @@ function PopupContact() {
                     </Button>
                 </Form> :
                     <>
-                        <small>ID: <code>{lastContact.IdMasterData}</code></small>
-                        <h5>Name: <b>{lastContact.Name}</b></h5>
-                        <p>Phone: {lastContact.Phone}</p>
-                        <p>Email: {lastContact.Email}</p>
+                        <Row>
+                            <Col><small>ID : <code>{lastContact.IdMasterData}</code></small></Col>
+                        </Row>
+                        <Row>
+                            <Col><p>Contact type : {lastContact.Type}</p></Col>
+                            <Col><p>Contact name : <b>{lastContact.Name}</b></p></Col>
+                        </Row>
+                        <Row>
+                            <Col><p>Phone : {lastContact.Phone}</p></Col>
+                            <Col><p>Email : {lastContact.Email}</p></Col>
+                            <Col><p>FAX : {lastContact.FAX}</p></Col>
+                        </Row>
 
                         
                         {/* render selected customer :)*/}

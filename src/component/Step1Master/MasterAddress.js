@@ -6,12 +6,20 @@ import { openAddressModal, closeAddressModal } from '../../redux/actions'
 import { BsPencilSquare } from "react-icons/bs";
 import PopupEditAddress from '../Step2PopupEdit/PopupEditAddress';
 import { getAddresses } from '../../redux/address/asyncActions'
+import SearchFilter from '../SearchFilter'
 
 function MasterAddress() {
+    // ******************************* REDUX STORE *******************************//
     const dispatch = useDispatch()
-    const address = useSelector(state => state.addresses.addresses.data) // from redux store
+    const addresses = useSelector(state => state.addresses.addresses.data)
+    // ******************************* REDUX STORE *******************************//
    
+    // ******************************* LOCAL STATE *******************************//
+    const [ filteredAddress, setFilteredAddress ] = useState([])
     const [show, setShow] = useState(false);
+    // ******************************* LOCAL STATE *******************************//
+
+    // ******************************* MODAL HANDLE FUNCTIONS ****************************\\
     const handleClose = function (m) {
         setShow(m);
     };
@@ -19,17 +27,18 @@ function MasterAddress() {
         dispatch({ type: "TOGGLE_ADDRESS_POPUP", payload: true })
         
     }; 
+    // ******************************* MODAL HANDLE FUNCTIONS ****************************\\
 
 
-    React.useEffect(() => {
-        dispatch(getAddresses())
-    }, [])
+    // ******************************* RENDER && FILTER FUNCTIONS ********************************\\
+    const handleFilter = (text) => {
+        const result = addresses.filter(item => item.Name.toLowerCase().match(text.toLowerCase()))
+        setFilteredAddress(result)
+    }
 
-    const sayHi = (id) => alert(`ID: ${id} 😀`)
-
-    const renderData = address ? address.map((item, i) => {
+    const renderAddresses = filteredAddress.length ? filteredAddress.map((item, i) => {
         return (
-            <tr key={i} onClick={() => sayHi(item.IdMasterData)}>
+            <tr key={i}>
                 <td>{i}</td>
                 <td>{item.TypeAddress}</td>
                 <td>{item.Name}</td>
@@ -42,24 +51,40 @@ function MasterAddress() {
                 <td>{item.PostalCode}</td>
             </tr>
         )
-    }) : null
+    }) : addresses && addresses.map((item, i) => {
+        return (
+            <tr key={i}>
+                <td>{i}</td>
+                <td>{item.TypeAddress}</td>
+                <td>{item.Name}</td>
+                <td>{item.Description}</td>
+                <td>{item.AddressNumber}</td>
+                <td>{item.Building}</td>
+                <td>{item.SubDistrict}</td>
+                <td>{item.District}</td>
+                <td>{item.Province}</td>
+                <td>{item.PostalCode}</td>
+            </tr>
+        )
+    })
+
+
+    React.useEffect(() => {
+        dispatch(getAddresses())
+    }, [])
+    // ******************************* RENDER && FILTER FUNCTIONS ********************************\\
 
     return (
         <div >
            
                 <Row>
                     <Col >
-                        <Form.Select aria-label="Default select example" size="sm">
-                            <option>Search </option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                        </Form.Select>
+                        <SearchFilter masterData={ handleFilter }/>
                     </Col>
 
                     <Col >
                         <div class="col float-end">
-                            <Button variant="success" size="sm" onClick={() => dispatch(openAddressModal())} >
+                            <Button variant="success" size="sm" onClick={() => dispatch({ type: 'OPEN_ADD' })} >
                                 Add Address
                             </Button>
                         </div>
@@ -85,7 +110,7 @@ function MasterAddress() {
                     </tr>
                 </thead>
                 <tbody>
-                    {renderData}
+                    { renderAddresses }
                 </tbody>
             </Table>
             <div class="col float-end">

@@ -18,14 +18,14 @@ const addressReducer = (state = initState, action) => {
                     data: state.addresses.data = action.payload
                 }
             }
-        case "UPDATE_ADDRESS":
+        case "ADD_ADDRESS":
             return {
                 ...state,
                 addresses: {
                     ...state.addresses,
                     isLoading: false,
                     error: null,
-                    data: [...state.addresses.data, action.payload]
+                    data: [ ...state.addresses.data, action.payload ]
                 }
             }
         default:
