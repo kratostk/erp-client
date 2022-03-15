@@ -7,20 +7,22 @@ import PopupAddCustomer from '../Step3PopupAdd/PopupAddCustomer';
 import { addAddress } from '../../redux/address/asyncActions'
 
 function PopupAddress() {
-     // ******************************* REDUX STORE *******************************\\
-     const dispatch = useDispatch();
-     const stateAddressModal = useSelector(state => state.modals.modals.address)
-     const userData = useSelector(state => state.user.user.data)
-     const customers = useSelector(state => state.customers.customers.data)    
-     // ******************************* REDUX STORE *******************************\\
+    // ******************************* REDUX STORE *******************************\\
+    const dispatch = useDispatch();
+    const stateAddressModal = useSelector(state => state.modals.modals.address)
+    const userData = useSelector(state => state.user.user.data)
+    const customers = useSelector(state => state.customers.customers.data)
+    const customerAddresses = useSelector(state => state.relationships.customerAddresses)
+    // ******************************* REDUX STORE *******************************\\
  
 
-     // ******************************* LOCAL STATES *******************************\\
-     const [ latestAddress, setLatestAddress ] = useState(null)
-     const [ childID, setChildID ] = useState(null)
-     console.log( 'latest address' ,latestAddress)
+    // ******************************* LOCAL STATES *******************************\\
+    const [ latestAddress, setLatestAddress ] = useState(null)
+    const [ childID, setChildID ] = useState(null)
+    const [ addressArr, setAddressArr ] = useState()
+    const [validated, setValidated] = useState(false);
 
-     const [AddressType, setAddressType] = useState('');
+    const [AddressType, setAddressType] = useState('');
     const [AddressName, setAddressName] = useState('');
     const [AddressDescription, setAddressDescription] = useState('');
     const [AddressNumber, setAddressNumber] = useState('');
@@ -29,14 +31,14 @@ function PopupAddress() {
     const [AddressDistrict, setAddressDistrict] = useState('');
     const [AddressProvince, setAddressProvince] = useState('');
     const [AddressPostalCode, setAddressPostalCode] = useState('');
-     // ******************************* LOCAL STATES *******************************\\
+    // ******************************* LOCAL STATES *******************************\\
 
-     const getSelectedCustomerID = (id) => {
+
+    const getSelectedCustomerID = (id) => {
         setChildID(id)
     }
     
-
-    const handleSubmit = async function (e) {
+    const handleAddAddress = async function (e) {
         console.log('ho')
         e.preventDefault();
         const addressData = {
@@ -55,7 +57,7 @@ function PopupAddress() {
             dispatch(addAddress(addressData))
             .then(address => {
                 setLatestAddress(address)
-                console.log('hi')
+                console.log('hi', latestAddress)
             })
  
         }catch(err) {
@@ -77,20 +79,57 @@ function PopupAddress() {
         setAddressPostalCode('')
     }
 
+    const renderSelectedCustomer = (id) => {
+        const f = customers.filter(c => c.IdMasterData == id)
+
+        return f.map((n, i) => (
+            <div key={i}>
+                <hr/>
+                <h3>Selected Customer</h3>
+                <small>Status: Pending</small>
+                <p>ID: <code>{n.IdMasterData}</code></p>
+                <p>Name: <b>{n.Company}</b></p>
+                <p>Email: <b>{n.Email}</b></p>
+            </div>
+        ))
+    }
+
     const handleRelationSubmit = async () => {
+        console.log('hi')
         try {
             const res = await axios.post('http://localhost:5000/api/address/bind', { cusID:  childID, addID: latestAddress.IdMasterData}, { withCredentials: true })
-            // filterRelationCustomer(childID)
+            dispatch({ type: 'UPDATE_REL_ADDRESS_CUSTOMER', payload: { cusID:  childID, addID: latestAddress.IdMasterData}})
+            setChildID(null) // for hiding selected customer
         }catch(err) {
             console.log(err)
         }
     }
 
-    const filterRelationCustomer = (id) => {
-        return customers.filter(c => c.IdmasterData === id)
+    // const filterRelationCustomer = (id) => {
+    //     return customers.filter(c => c.IdmasterData === id)
+    // }
+
+    const filterRelationCustomer = (address_ID) => {
+        if(!address_ID) return null;
+
+        const collectionOfTargetAddressID = customerAddresses.filter(item => item.addID === address_ID.IdMasterData)
+
+        let res = []
+        for(let i = 0; i < collectionOfTargetAddressID.length; i++) {
+            for(let j = 0; j < customers.length; j++) {
+              if(collectionOfTargetAddressID[i].cusID === customers[j].IdMasterData){
+                res.push(customers[j])
+                // setState
+                // setContactsArr(prev => [...prev, customers[j]])
+              }
+            }
+        }
+        
+        setAddressArr(res)  
     }
-
-
+    React.useEffect(() => {
+        filterRelationCustomer(latestAddress)
+    }, [customerAddresses, latestAddress, childID])
    
 
     return (
@@ -107,7 +146,7 @@ function PopupAddress() {
                 </Modal.Header>
                 <Modal.Body>
                     <div >
-                    { !latestAddress ? <Form>                           
+                    { !latestAddress ? <Form noValidate validated={validated} onSubmit={ handleAddAddress }>                           
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="AddressTypeDropdown">
                                     <Form.Label>Address type</Form.Label>
@@ -192,30 +231,26 @@ function PopupAddress() {
                                         placeholder="PostalCode" />
                                 </Form.Group>
                             </Row>
-                            <Button variant="success" size="sm"  type="submit"onClick={ handleSubmit }>Save</Button>
+                            <Button variant="success" size="sm"  type="submit">Save</Button>
                         </Form> :
                             <>
-                                <small>ID: {latestAddress.IdMasterData}</small>
-                                <Row>
-                                    <Col><h1>Address name : {latestAddress.Name}</h1></Col>
-                                    <Col><h4>Address type : {latestAddress.Type}</h4></Col>
-                                    <Col><h4>Description: {latestAddress.Description}</h4></Col>
-                                </Row>
-                                <Row>
-                                    <Col><h4>AddressNumber: {latestAddress.Number}</h4></Col>
-                                    <Col><h4>Building: {latestAddress.Building}</h4></Col>
-                                    <Col><h4>SubDistrict: {latestAddress.SubDistrict}</h4></Col>
-                                </Row>
-                                <Row>
-                                    <Col><h4>District: {latestAddress.District}</h4></Col>
-                                    <Col><h4>Province: {latestAddress.Province}</h4></Col>
-                                    <Col><h4>PostalCode: {latestAddress.PostalCode}</h4></Col>
-                                </Row>                                         
+                                <small>ID: <code>{latestAddress.IdMasterData}</code></small>
+                                <p>Address name : {latestAddress.Name}</p>
+                                <p>Address type : {latestAddress.Type}</p>
+                                <p>Description: {latestAddress.Description}</p>
+                                <p>AddressNumber: {latestAddress.Number}</p>
+                                <p>Building: {latestAddress.Building}</p>
+                                <p>SubDistrict: {latestAddress.SubDistrict}</p>
+                                <p>District: {latestAddress.District}</p>
+                                <p>Province: {latestAddress.Province}</p>
+                                <p>PostalCode: {latestAddress.PostalCode}</p>      
+
+                                { renderSelectedCustomer(childID) }                                
                             </>
                         }
                        
                     </div>
-                        <PopupAddCustomer isAddedAddress={latestAddress} getSelectedCustomerID={getSelectedCustomerID} />
+                        <PopupAddCustomer isChildIDSet={childID} isAddedContact={latestAddress} getSelectedCustomerID={getSelectedCustomerID} />
                         <br /><br />
                         
 
@@ -231,20 +266,33 @@ function PopupAddress() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+
+
+                                { addressArr ? addressArr.map((item, i) => (
+                                    <tr key={i}>
+                                        <td>{i}</td>
+                                        <td>{item.Type}</td>
+                                        <td>{item.Company}</td>
+                                        <td>{item.Email}</td>
+                                        <td>{item.Phone}</td>
+                                        <td>{item.FAX}</td>
+                                    </tr>
+                                )): null}
+
+                                {/* <tr>
                                     <td>1</td>
                                     <td>Pubic</td>
                                     <td>ABC</td>
                                     <td>ABC@gmail.com</td>
                                     <td>0981234567</td>
                                     <td>1234567890</td>
-                                </tr>
+                                </tr> */}
                             </tbody>
                         </Table>
                    
                 </Modal.Body>
                 <Modal.Footer>                   
-                    <Button variant="success" size="sm" onClick={handleRelationSubmit} >
+                    <Button variant="success" size="sm" onClick={ handleRelationSubmit }>
                         Submit
                     </Button>
                     <Button variant="secondary" onClick={() => dispatch({ type: 'CLOSE_ADD' })} size="sm">

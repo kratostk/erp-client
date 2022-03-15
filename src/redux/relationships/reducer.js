@@ -16,6 +16,11 @@ const relationshipReducer = (state = initState, action) => {
                 ...state,
                 customerContacts: [...state.customerContacts, action.payload]
             }
+        case 'UPDATE_REL_ADDRESS_CUSTOMER':
+            return {
+                ...state,
+                customerAddresses: [...state.customerAddresses, action.payload]
+            }
         default:
             return state;
     }
