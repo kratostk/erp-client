@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Button, Table, Form, Col, Row, Container } from 'react-bootstrap'
+import { Modal, Button, Table, Form, Col, Row, Container, Spinner } from 'react-bootstrap'
 import axios from "axios";
 import { useDispatch, useSelector } from 'react-redux'
 import { closeAddressModal } from '../../redux/actions'
@@ -21,6 +21,7 @@ function PopupAddress() {
     const [ childID, setChildID ] = useState(null)
     const [ addressArr, setAddressArr ] = useState()
     const [validated, setValidated] = useState(false);
+    const [ saveBtnSpinner, setSaveBtnSpinner ] = useState(false)
 
     const [AddressType, setAddressType] = useState('');
     const [AddressName, setAddressName] = useState('');
@@ -39,8 +40,19 @@ function PopupAddress() {
     }
     
     const handleAddAddress = async function (e) {
-        console.log('ho')
         e.preventDefault();
+        const form = e.currentTarget;
+        if (form.checkValidity() === false) {
+            // if form is invalid
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('form has error')
+            setValidated(true)
+            return false
+        }
+
+        // If form is valid then make a request
+        setSaveBtnSpinner(true)
         const addressData = {
             AddressType: AddressType,
             AddressName: AddressName,
@@ -53,15 +65,17 @@ function PopupAddress() {
             AddressPostalCode: AddressPostalCode,
             user : userData
         };       
+        console.log('Form is validated!')
         try {
             dispatch(addAddress(addressData))
-            .then(address => {
-                setLatestAddress(address)
-                console.log('hi', latestAddress)
-            })
- 
+            .then(data => {
+                setLatestAddress(data)
+                setSaveBtnSpinner(false)
+            }) // from promise 
+
         }catch(err) {
             console.log(err)
+            setSaveBtnSpinner(false)
         }
     };
 
@@ -85,11 +99,24 @@ function PopupAddress() {
         return f.map((n, i) => (
             <div key={i}>
                 <hr/>
-                <h3>Selected Customer</h3>
-                <small>Status: Pending</small>
-                <p>ID: <code>{n.IdMasterData}</code></p>
-                <p>Name: <b>{n.Company}</b></p>
-                <p>Email: <b>{n.Email}</b></p>
+                <Row>
+                    <h3>Selected Customer</h3>
+                </Row>
+                <Row>
+                    <small>Status : Pending</small>
+                </Row>
+                <Row>
+                    <p>ID : <code>{n.IdMasterData}</code></p>
+                </Row>
+                <Row>
+                    <Col><p>Customer type : <b>{n.Type}</b></p></Col>
+                    <Col><p>Customer name : <b>{n.Company}</b></p></Col>
+                </Row>
+                <Row>
+                    <Col><p>Phone : <b>{n.Phone}</b></p></Col>
+                    <Col><p>Email : <b>{n.Email}</b></p></Col>
+                    <Col><p>FAX : <b>{n.FAX}</b></p></Col>
+                </Row>    
             </div>
         ))
     }
@@ -150,11 +177,14 @@ function PopupAddress() {
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="AddressTypeDropdown">
                                     <Form.Label>Address type</Form.Label>
-                                    <Form.Select defaultValue="Please select Address type" value={AddressType} onChange={(e) => setAddressType(e.target.value)}>
-                                        <option>Please select Address type</option>
+                                    <Form.Select defaultValue="Please select Address type" value={AddressType} onChange={(e) => setAddressType(e.target.value)} required>
+                                        <option selected disabled value="">Please select Address type</option>
                                         <option value='public'>Public</option>
                                         <option value='personal'>Personal</option>
                                     </Form.Select>
+                                    <Form.Control.Feedback type="invalid">
+                                        Please provide a valid Address type.
+                                    </Form.Control.Feedback>
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="AddressNameInput">
@@ -163,7 +193,12 @@ function PopupAddress() {
                                         type="AddressName" 
                                         value={AddressName} 
                                         onChange={(e) => setAddressName(e.target.value)} 
-                                        placeholder="Address name"  />
+                                        placeholder="Address name"  
+                                        required 
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            Please provide a valid Address name.
+                                        </Form.Control.Feedback>
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="DescriptionInput">
@@ -172,7 +207,12 @@ function PopupAddress() {
                                         type="Description" 
                                         value={AddressDescription} 
                                         onChange={(e) => setAddressDescription(e.target.value)} 
-                                        placeholder="Description" />
+                                        placeholder="Description" 
+                                        required 
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            Please provide a valid Description.
+                                        </Form.Control.Feedback>
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
@@ -182,7 +222,12 @@ function PopupAddress() {
                                         type="AddressNumber" 
                                         value={AddressNumber} 
                                         onChange={(e) => setAddressNumber(e.target.value)} 
-                                        placeholder="Address number" />
+                                        placeholder="Address number" 
+                                        required 
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            Please provide a valid Address number.
+                                        </Form.Control.Feedback>
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="BuildingInput">
@@ -191,7 +236,12 @@ function PopupAddress() {
                                         type="Building" 
                                         value={AddressBuilding} 
                                         onChange={(e) => setAddressBuilding(e.target.value)} 
-                                        placeholder="Building" />
+                                        placeholder="Building" 
+                                        required 
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            Please provide a valid Building.
+                                        </Form.Control.Feedback>
                                 </Form.Group>                                
                             </Row>
                             <Row className="mb-3">
@@ -201,7 +251,12 @@ function PopupAddress() {
                                         type="SubDistrict" 
                                         value={AddressSubDistrict} 
                                         onChange={(e) => setAddressSubDistrict(e.target.value)} 
-                                        placeholder="SubDistrict" />
+                                        placeholder="SubDistrict" 
+                                        required 
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            Please provide a valid SubDistrict.
+                                        </Form.Control.Feedback>
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="DistrictInput">
@@ -210,7 +265,12 @@ function PopupAddress() {
                                         type="District" 
                                         value={AddressDistrict} 
                                         onChange={(e) => setAddressDistrict(e.target.value)} 
-                                        placeholder="District" />
+                                        placeholder="District" 
+                                        required 
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            Please provide a valid District.
+                                        </Form.Control.Feedback>
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="ProvinceInput">
@@ -219,7 +279,12 @@ function PopupAddress() {
                                         type="Province" 
                                         value={AddressProvince} 
                                         onChange={(e) => setAddressProvince(e.target.value)} 
-                                        placeholder="Province" />
+                                        placeholder="Province" 
+                                        required 
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            Please provide a valid Province.
+                                        </Form.Control.Feedback>
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="PostalCodeInput">
@@ -228,22 +293,47 @@ function PopupAddress() {
                                         type="PostalCode" 
                                         value={AddressPostalCode} 
                                         onChange={(e) => setAddressPostalCode(e.target.value)} 
-                                        placeholder="PostalCode" />
+                                        placeholder="PostalCode" 
+                                        required 
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            Please provide a valid PostalCode.
+                                        </Form.Control.Feedback>
                                 </Form.Group>
                             </Row>
-                            <Button variant="success" size="sm"  type="submit">Save</Button>
+                            <Button variant="success" size="sm"  type="submit">
+                                {saveBtnSpinner ? (
+                                <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                                 />
+                                ): null}
+                                Save
+                            </Button>
                         </Form> :
                             <>
-                                <small>ID: <code>{latestAddress.IdMasterData}</code></small>
-                                <p>Address name : {latestAddress.Name}</p>
-                                <p>Address type : {latestAddress.Type}</p>
-                                <p>Description: {latestAddress.Description}</p>
-                                <p>AddressNumber: {latestAddress.Number}</p>
-                                <p>Building: {latestAddress.Building}</p>
-                                <p>SubDistrict: {latestAddress.SubDistrict}</p>
-                                <p>District: {latestAddress.District}</p>
-                                <p>Province: {latestAddress.Province}</p>
-                                <p>PostalCode: {latestAddress.PostalCode}</p>      
+                                <Row>
+                                    <Col><small>ID: <code>{latestAddress.IdMasterData}</code></small></Col>
+                                    
+                                </Row>
+                                <Row>
+                                    <Col><p>Address type : {latestAddress.Type}</p></Col>
+                                    <Col><p>Address name : {latestAddress.Name}</p></Col>
+                                    <Col><p>Description: {latestAddress.Description}</p></Col>
+                                </Row>
+                                <Row>
+                                    <Col><p>Address number: {latestAddress.Number}</p></Col>
+                                    <Col><p>Building: {latestAddress.Building}</p></Col>
+                                    <Col><p>SubDistrict: {latestAddress.SubDistrict}</p></Col>
+                                </Row>
+                                <Row>
+                                    <Col><p>District: {latestAddress.District}</p></Col>
+                                    <Col><p>Province: {latestAddress.Province}</p></Col>
+                                    <Col><p>PostalCode: {latestAddress.PostalCode}</p></Col>
+                                </Row>         
 
                                 { renderSelectedCustomer(childID) }                                
                             </>

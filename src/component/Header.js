@@ -16,17 +16,16 @@ function Header() {
                             <img src={Logo} className="AppLogo" alt="logo" />
                         </Col>
                         <Col sm={2}> </Col>
-                        <Col sm={4}>
+                        <Col sm={3}>
                             <br />
                             <p className="text-center" className="Text2"> บริษัท คราทอส แทรคกิ้ง จำกัด <br /> KRATOS TRACKING CO.,LTD.</p>
                         </Col>
-                        <Col sm={3}>
+                        <Col sm={4}>
                             <div className="col float-end">
                                 <br />
                                 <BsFillPeopleFill size="2em" className="col float-end" /> <br />
-                                {/*<p class="text-center" className="Text2"> Name :</p>*/}
-                               {/* <p class="text-center" className="Text2"> Username :</p>*/}
-                                <p className="text-center" className="Text2"> User name : {userData ? userData.fullName : 'Anonymous'}</p>
+                                
+                                <p class="text-center" className="Text2"> Username : {userData ? userData.fullName : 'Anonymous'}</p>
                             </div>            
                         </Col>
                     </Row>

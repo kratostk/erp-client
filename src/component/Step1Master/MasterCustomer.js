@@ -8,14 +8,19 @@ import SearchFilter from '../SearchFilter'
 import { getCustomers } from '../../redux/customer/asyncActions'
 
 function MasterCustomer() {
-     // ---------- REDUX STATE --------------
+     // ****************************** REDUX STATE ******************************\\
     const dispatch = useDispatch()
     const customers = useSelector(state => state.customers.customers.data)
-     // ---------- REDUX STATE --------------
+     // ****************************** REDUX STATE ******************************\\
 
-    // ---------- LOCAL STATE --------------
+    // ****************************** LOCAL STATES ******************************\\
     const [ filterData, setFilterData ] = useState([])
     const [show, setShow] = useState(false);
+    // ****************************** LOCAL STATES ******************************\\
+
+
+    // ****************************** MODAL HANDLING FUNCTIONS ******************************\\
+    
     const handleClose = function(m) {
         setShow(m);
     };
@@ -24,28 +29,26 @@ function MasterCustomer() {
         // setShow(true)
         // console.log(show);
     };
-    // ---------- LOCAL STATE --------------
+    // ****************************** MODAL HANDLING FUNCTIONS ******************************\\
     
-    React.useEffect(() => {
-        dispatch(getCustomers())
-    }, [])
+    
 
-    const sayHi = (id) => alert(`ID: ${id} 😀`)
 
+    
+
+
+    // *********************************** RENDER && FILTER FUNCTIONS *********************************\\
     const filterCustomers = (text) => {
-        const res = customers.filter(item => item.Name.toLowerCase().match(text.toLowerCase()) || item.Email.toLowerCase().match(text.toLowerCase()))
+        const res = customers.filter(item => item.Company.toLowerCase().match(text.toLowerCase()) || item.Email.toLowerCase().match(text.toLowerCase()))
         setFilterData(res)
         
     }
-
-
-    // ------------------Conditional render data -------------------------
     const renderData = filterData.length ? filterData.map((item, i) => {
         return (
-            <tr key={i} onClick={() => sayHi(item.IdMasterData)}>
+            <tr key={i}>
                 <td>{i}</td>
                 <td>{item.Type}</td>
-                <td>{item.Name}</td>
+                <td>{item.Company}</td>
                 <td>{item.Email}</td>
                 <td>{item.Phone}</td>
                 <td>{item.FAX}</td>
@@ -59,7 +62,7 @@ function MasterCustomer() {
             <tr key={i}>
                 <td>{i}</td>
                 <td>{item.Type}</td>
-                <td>{item.Name}</td>
+                <td>{item.Company}</td>
                 <td>{item.Email}</td>
                 <td>{item.Phone}</td>
                 <td>{item.FAX}</td>
@@ -69,7 +72,10 @@ function MasterCustomer() {
             </tr>
         )
     })
-    // ------------------Conditional render data -------------------------
+    React.useEffect(() => {
+        dispatch(getCustomers())
+    }, [])
+    // *********************************** RENDER && FILTER FUNCTIONS *********************************\\
 
     return (
         <div >

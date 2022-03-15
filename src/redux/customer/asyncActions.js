@@ -29,7 +29,7 @@ export const addCustomer = ( inputCustomerData ) => {
                     IdMasterData: output_id
                 }
                 dispatch({ type: add_customer, payload: customerConstants })
-                resolve(customerConstants.IdMasterData)
+                resolve(customerConstants)
             })
             .catch(err => {
                 reject(err)

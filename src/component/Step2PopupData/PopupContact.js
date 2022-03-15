@@ -114,11 +114,24 @@ function PopupContact() {
         return f.map((n, i) => (
             <div key={i}>
                 <hr/>
-                <h3>Selected Customer</h3>
-                <small>Status: Pending</small>
-                <p>ID: <code>{n.IdMasterData}</code></p>
-                <p>Name: <b>{n.Company}</b></p>
-                <p>Email: <b>{n.Email}</b></p>
+                <Row>
+                    <h3>Selected Customer</h3>
+                </Row>
+                <Row>
+                    <small>Status : Pending</small>
+                </Row>
+                <Row>
+                    <p>ID : <code>{n.IdMasterData}</code></p>
+                </Row>
+                <Row>
+                    <Col><p>Customer type : <b>{n.Type}</b></p></Col>
+                    <Col><p>Customer name : <b>{n.Company}</b></p></Col>
+                </Row>
+                <Row>
+                    <Col><p>Phone : <b>{n.Phone}</b></p></Col>
+                    <Col><p>Email : <b>{n.Email}</b></p></Col>
+                    <Col><p>FAX : <b>{n.FAX}</b></p></Col>
+                </Row>       
             </div>
         ))
     }

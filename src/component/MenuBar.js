@@ -7,7 +7,7 @@ import PopupCustomer from './Step2PopupData/PopupCustomer';
 import PopupContact from './Step2PopupData/PopupContact';
 import PopupAddress from './Step2PopupData/PopupAddress';
 import { Container, Row, Col, Tab, Nav, Placeholder } from 'react-bootstrap'
-import { BsFillPersonBadgeFill } from "react-icons/bs";
+import { BsFillPersonBadgeFill, BsFillHouseFill, BsFillBriefcaseFill } from "react-icons/bs";
 
 function MenuBar() {
     return (
@@ -15,18 +15,18 @@ function MenuBar() {
             <Row>
                 <Col sm={2} >
                     <Nav variant="pills" className="flex-column" >
-                        <Nav.Item >
-                            <Nav.Link eventKey="MasterCustomer">Master Customer</Nav.Link><hr />
+                        <Nav.Item  class="bg-info text-white">
+                            <Nav.Link eventKey="MasterCustomer"><BsFillBriefcaseFill size="1.0em"/>       Master Customer</Nav.Link>
                         </Nav.Item>
-                        
+                        <hr />
                         <Nav.Item class="bg-info text-white">
-                            <Nav.Link eventKey="MasterContact"><BsFillPersonBadgeFill size="1.5em"/>          Master Contact</Nav.Link>
+                            <Nav.Link eventKey="MasterContact"><BsFillPersonBadgeFill size="1.0em"/>          Master Contact</Nav.Link>
                         </Nav.Item>
-                            <hr/>
+                        <hr/>
                         <Nav.Item class="bg-info text-white">
-                            <Nav.Link eventKey="MasterAddress">Master Address</Nav.Link>
+                            <Nav.Link eventKey="MasterAddress"><BsFillHouseFill size="1.0em"/>         Master Address</Nav.Link>
                         </Nav.Item>
-                                <hr/>
+                        <hr/>
                     </Nav>
                 </Col>
                 <Col sm={10}>
