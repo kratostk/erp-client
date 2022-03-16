@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Modal, Button, Table, Form, Col, Row } from 'react-bootstrap'
 import PopupCustomer from '../Step2PopupData/PopupCustomer';
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { addContact } from '../../redux/contact/asyncActions'
 
-function PopupAddContact({ isChildIDSet, isAddedContact, setSelectedCustomerID }) {
+function PopupAddContact({ isChildIDSet, isAddedContact, getSelectedContactID }) {
 
-    console.log('from contact popup' ,isChildIDSet)
     // ************************** REDUX STORE *****************************\\
+    const dispatch = useDispatch()
     const contacts = useSelector(state => state.contacts.contacts.data)
 
     // ************************** REDUX STORE *****************************\\
@@ -15,14 +16,60 @@ function PopupAddContact({ isChildIDSet, isAddedContact, setSelectedCustomerID }
     
     // ************************** LOCAL STATES *****************************\\
     const [ checkboxState, setCheckboxState ] = useState(false)
+    const [ selectedContactID, setSelectedContactID ] = useState(null)
     const [show, setShow] = useState(false);
+
+    //----------------------
+
+    const [ContactType, setContactType] = useState(null);
+    const [ContactName, setContactName] = useState('');
+    const [ContactPhone, setContactPhone] = useState('');
+    const [ContactEmail, setContactEmail] = useState('');
+    const [ContactFAX, setContactFAX] = useState('');
     // ************************** LOCAL STATES *****************************\\
 
 
-    const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const handleClose = () => {
+        setCheckboxState(false)
+        setShow(false)
+    };
 
     const btnDecide = (!isAddedContact || isChildIDSet === 'address') ? true : false;
+
+    // ************************* Save Function *************************//
+    const handleSave = (e) => {
+        e.preventDefault();
+        
+        // if use existing customer dont make request
+        if(!checkboxState) {
+            const contactData = {
+                ContactType : ContactType,
+                ContactName : ContactName,
+                ContactPhone : ContactPhone,
+                ContactEmail : ContactEmail,
+                ContactFAX : ContactFAX
+            };
+            // setSpinnerState(true)
+            dispatch(addContact(contactData)) // <-- return promise
+            .then(id => {
+                //setSpinnerState(false) // stop loading animation
+                getSelectedContactID(id) // set just created row id to be used to reference in relation table
+                handleClose()
+            })
+            .catch(err => {
+                //setSpinnerState(false)
+                console.log(err)
+            })
+        }else {
+            // SELECT CUSTOMER FROM EXISTING DATA
+
+            // set selected ID to setState of parent component
+            getSelectedContactID(selectedContactID)
+            handleClose()
+        }
+    }
+    // ************************* Save Function *************************//
     
 
 
@@ -60,7 +107,7 @@ function PopupAddContact({ isChildIDSet, isAddedContact, setSelectedCustomerID }
                                 <Form.Group as={Col} controlId="CustomerDropdown">
                                     <Form.Label>Select Contacts</Form.Label>
                                     <Form.Select 
-                                        onChange={(e) => setSelectedCustomerID(e.target.value)} 
+                                        onChange={(e) => setSelectedContactID(e.target.value)} 
                                         disabled={!checkboxState} 
                                         defaultValue="Please select Contacts">
 
@@ -76,7 +123,7 @@ function PopupAddContact({ isChildIDSet, isAddedContact, setSelectedCustomerID }
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="ContactTypeDropdown">
                                     <Form.Label>Contact type</Form.Label>
-                                    <Form.Select disabled={checkboxState}  defaultValue="Please select Customer type">
+                                    <Form.Select disabled={checkboxState}  onChange={(e) => setContactType(e.target.value)}>
                                         <option>Please select Contact type</option>
                                         <option value='customer'>Customer</option>
                                         <option value='employee'>Employee</option>
@@ -85,23 +132,23 @@ function PopupAddContact({ isChildIDSet, isAddedContact, setSelectedCustomerID }
 
                                 <Form.Group as={Col} controlId="ContactNameInput">
                                     <Form.Label>Contact name</Form.Label>
-                                    <Form.Control disabled={checkboxState}  type="ContactName" placeholder="Contact name" />
+                                    <Form.Control disabled={checkboxState} onChange={(e) => setContactName(e.target.value)}  type="ContactName" placeholder="Contact name" />
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="EmailInput">
                                     <Form.Label>Email</Form.Label>
-                                    <Form.Control disabled={checkboxState}  type="Email" placeholder="Email" />
+                                    <Form.Control disabled={checkboxState} onChange={(e) => setContactPhone(e.target.value)} type="Email" placeholder="Email" />
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="PhoneInput">
                                     <Form.Label>Phone</Form.Label>
-                                    <Form.Control disabled={checkboxState}   type="Phone" placeholder="Phone" />
+                                    <Form.Control disabled={checkboxState} onChange={(e) => setContactEmail(e.target.value)}   type="Phone" placeholder="Phone" />
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="FAXInput">
                                     <Form.Label>FAX</Form.Label>
-                                    <Form.Control disabled={checkboxState}  type="FAX" placeholder="FAX" />
+                                    <Form.Control disabled={checkboxState} onChange={(e) => setContactFAX(e.target.value)}  type="FAX" placeholder="FAX" />
                                 </Form.Group>
                             </Row>
                         </Form>
@@ -109,7 +156,7 @@ function PopupAddContact({ isChildIDSet, isAddedContact, setSelectedCustomerID }
                 </Modal.Body>
                 <Modal.Footer>
                     
-                    <Button variant="success" size="sm">Save</Button>
+                    <Button onClick={handleSave} variant="success" size="sm">Save</Button>
                     <Button variant="secondary" onClick={handleClose} size="sm">
                         Close
                     </Button>

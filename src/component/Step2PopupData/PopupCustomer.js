@@ -1,7 +1,7 @@
 ﻿import PopupAddContact from '../Step3PopupAdd/PopupAddContact';
 import PopupAddAddress from '../Step3PopupAdd/PopupAddAddress';
 import React, { useState } from 'react';
-import { Modal, Button, Table, Form, Col, Row, Container } from 'react-bootstrap'
+import { Modal, Button, Table, Form, Col, Row, Container, Spinner } from 'react-bootstrap'
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux'
@@ -18,6 +18,9 @@ function PopupCustomer() {
     const dispatch = useDispatch();
     const contacts = useSelector(state => state.contacts.contacts.data)
     const addresses  = useSelector(state => state.addresses.addresses.data)
+    const customers = useSelector(state => state.customers.customers.data)
+    const customerAddresses = useSelector(state => state.relationships.customerAddresses) // -> filter
+    const customerContacts = useSelector(state => state.relationships.customerContacts) // -> filter
     // ********************************* REDUX STORE ******************************\\
 
 
@@ -29,7 +32,9 @@ function PopupCustomer() {
         target: null,
         data: null
     })
-    const [ busyState, setBusyState ] = useState(false) // we will keep track if customer already in stage of pending adding customer relation to any master data, two at the same time not allow
+    const [ saveBtnSpinner, setSaveBtnSpinner ] = useState(false)
+    const [ addressArr, setAddressArr ] = useState(null)
+    const [ contactArr, setContactArr ] = useState(null)
 
     //--------------------
     const [CustomerType, setCustomerType] = useState(null);
@@ -72,6 +77,7 @@ function PopupCustomer() {
 
     const handleAddCustomer = async function (e) {
         e.preventDefault();
+        setSaveBtnSpinner(true)
         const customerData = {
             CustomerType : CustomerType,
             CustomerName : CustomerName,
@@ -84,6 +90,7 @@ function PopupCustomer() {
             dispatch(addCustomer(customerData))
             .then(data => {
                 setLastCustomer(data)
+                setSaveBtnSpinner(false)
                 console.log(data)
             })
             .catch(err => {
@@ -91,6 +98,7 @@ function PopupCustomer() {
             })
         }catch(err) {
             console.log(err)
+            setSaveBtnSpinner(false)
         }
     };
 
@@ -106,14 +114,28 @@ function PopupCustomer() {
 
 
     const handleRelationSubmit = async () => {
-        try {
-            //addID no
-            const res
-             = await axios.post('http://localhost:5000/api/customer/bind', { conID:  childID, cusID: lastCustomer.IdMasterData}, { withCredentials: true })
-            // filterRelationCustomer(childID)
-        }catch(err) {
-            console.log(err)
+        if(childID.isBusy && childID.target === 'address') {
+            try {
+                //addID no
+                const res = await axios.post('http://localhost:5000/api/address/bind', { addID:  childID.data, cusID: lastCustomer.IdMasterData}, { withCredentials: true })
+                 dispatch({ type: 'UPDATE_REL_ADDRESS_CUSTOMER', payload: { addID:  childID.data, cusID: lastCustomer.IdMasterData}})
+                 setChildID({ isBusy: false, target: null, data: null }) // for hiding selected customer
+            }catch(err) {
+                console.log(err)
+            }
+        }else if (childID.isBusy && childID.target === 'contact') {
+            try {
+                //addID no
+                const res = await axios.post('http://localhost:5000/api/contact/bind', { conID:  childID.data, cusID: lastCustomer.IdMasterData}, { withCredentials: true })
+                dispatch({ type: 'UPDATE_REL_CONTACT_CUSTOMER', payload: { addID:  childID.data, cusID: lastCustomer.IdMasterData}})
+                 setChildID({ isBusy: false, target: null, data: null }) // for hiding selected customer
+            }catch(err) {
+                console.log(err)
+            }
+        }else {
+            return false
         }
+        
     }
 
     const renderSelectedChildData = (childData) => {
@@ -178,11 +200,47 @@ function PopupCustomer() {
         }
     }
 
-    const filterRelationCustomer = (id) => {
-        return contacts.filter(c => c.IdmasterData === id)
+
+    // FILTER RELATIONAL ADDRESS FROM CURRENT CUSTOMER 
+    const filterRelationAddress = (customer_ID) => {
+        if(!customer_ID) return null;
+
+        const collectionOfTargetAddressID = customerAddresses.filter(item => item.cusID === customer_ID.IdMasterData)
+
+        let res = []
+        for(let i = 0; i < collectionOfTargetAddressID.length; i++) {
+            for(let j = 0; j < addresses.length; j++) {
+              if(collectionOfTargetAddressID[i].addID === addresses[j].IdMasterData){
+                res.push(addresses[j])
+              }
+            }
+        }
+        
+        setAddressArr(res)  
     }
 
-    console.log('childID', childID)
+    // FILTER RELATIONAL CONTACT FROM CURRENT CUSTOMER 
+    const filterRelationContact = (customer_ID) => {
+        if(!customer_ID) return null;
+
+        const collectionOfTargetContactID = customerContacts.filter(item => item.cusID === customer_ID.IdMasterData)
+
+        let res = []
+        for(let i = 0; i < collectionOfTargetContactID.length; i++) {
+            for(let j = 0; j < contacts.length; j++) {
+              if(collectionOfTargetContactID[i].addID === contacts[j].IdMasterData){
+                res.push(contacts[j])
+              }
+            }
+        }
+        
+        setContactArr(res)  
+    }
+
+    React.useEffect(() => {
+        filterRelationAddress(lastCustomer)
+        filterRelationContact(lastCustomer)
+    }, [customerAddresses, customerContacts ,lastCustomer, childID])
 
     return (
         <>           
@@ -238,7 +296,20 @@ function PopupCustomer() {
                                     <Form.Control type="FAX" value={CustomerFAX} onChange={(e) => setCustomerFAX(e.target.value)} placeholder="FAX" />
                                 </Form.Group>
                             </Row>
-                            <Button variant="success" size="sm"  type="submit">Save</Button>
+                            <Button 
+                                variant="success" size="sm"  type="submit"
+                            >
+                                {saveBtnSpinner ? (
+                                    <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                />
+                            ): null}
+                                Save
+                            </Button>
                     </Form> :
                          (
                          <>
@@ -271,7 +342,6 @@ function PopupCustomer() {
                                     <th>Description</th>
                                     <th>Address number</th>
                                     <th>Building</th>
-                                    <th>Street</th>
                                     <th>SubDistrict</th>
                                     <th>District</th>
                                     <th>Province</th>
@@ -279,19 +349,21 @@ function PopupCustomer() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>kratostracking</td>
-                                    <td>Office</td>
-                                    <td>kratos</td>
-                                    <td>968</td>
-                                    <td>ชั้น 5 อาคาร U-Chu Liang</td>
-                                    <td>ถนนพระรามที่ ๔</td>
-                                    <td>สีลม</td>
-                                    <td>บางรัก</td>
-                                    <td>กรุงเทพมหานคร</td>
-                                    <td>10500</td>
-                                </tr>
+                                { addressArr ? addressArr.map((item, i) => (
+                                    <tr>
+                                        <td>{i}</td>
+                                        <td>{item.Type}</td>
+                                        <td>{item.Name}</td>
+                                        <td>{item.Description}</td>
+                                        <td>{item.Number}</td>
+                                        <td>{item.Building}</td>
+                                        <td>{item.SubDistrict}</td>
+                                        <td>{item.District}</td>
+                                        <td>{item.Province}</td>
+                                        <td>{item.PostalCode}</td>
+                                    </tr>
+                                )): null }
+                                
                             </tbody>
                         </Table>
 
@@ -311,14 +383,17 @@ function PopupCustomer() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Sale</td>
-                                    <td>Phobdaw</td>
-                                    <td>ABC@gmail.com</td>
-                                    <td>0981234567</td>
-                                    <td>1234567890</td>
-                                </tr>
+                                { contactArr ? contactArr.map((item, i) => (
+                                    <tr>
+                                        <td>{i}</td>
+                                        <td>{ item.Type }</td>
+                                        <td>{ item.Name }</td>
+                                        <td>{ item.Email }</td>
+                                        <td>{ item.Phone }</td>
+                                        <td>{ item.FAX }</td>
+                                    </tr>
+                                )): null }
+                                
                             </tbody>
                         </Table>
                         
