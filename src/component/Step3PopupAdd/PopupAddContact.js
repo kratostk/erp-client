@@ -33,6 +33,7 @@ function PopupAddContact({ isChildIDSet, isAddedContact, getSelectedContactID })
     const handleShow = () => setShow(true);
     const handleClose = () => {
         setCheckboxState(false)
+        setSaveBtnSpinner(false)
         setShow(false)
     };
 

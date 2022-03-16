@@ -41,6 +41,7 @@ function PopupCustomer() {
     const [CustomerPhone, setCustomerPhone] = useState('');
     const [CustomerEmail, setCustomerEmail] = useState('');
     const [CustomerFAX, setCustomerFAX] = useState('');
+    const submitBtnDecide = !lastCustomer || !childID.isBusy
     // ********************************* LOCAL STATES ******************************\\
 
 
@@ -416,7 +417,7 @@ function PopupCustomer() {
                 </Modal.Body>
                 <Modal.Footer>
                     
-                    <Button disabled={!lastCustomer} variant="success" size="sm" onClick={handleRelationSubmit} >
+                    <Button disabled={ submitBtnDecide } variant="success" size="sm" onClick={handleRelationSubmit} >
                         Submit
                     </Button>
                     <Button variant="secondary" onClick={handleCloseModal} size="sm">

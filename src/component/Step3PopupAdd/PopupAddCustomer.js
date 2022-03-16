@@ -49,9 +49,9 @@ function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
             };
             setSpinnerState(true)
             dispatch(addCustomer(customerData)) // <-- return promise
-            .then(id => {
+            .then(data => {
                 setSpinnerState(false) // stop loading animation
-                getSelectedCustomerID(id) // set just created row id to be used to reference in relation table
+                getSelectedCustomerID(data.IdMasterData) // set just created row id to be used to reference in relation table
                 handleClose()
             })
             .catch(err => {

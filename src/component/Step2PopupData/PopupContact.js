@@ -30,6 +30,7 @@ function PopupContact() {
     const [ContactEmail, setContactEmail] = useState('');
     const [ContactFAX, setContactFAX] = useState('');
     const [validated, setValidated] = useState(false);
+    const submitBtnDecide = !lastContact || !childID
     // *********************** LOCAL STATES ***********************\\
 
     const getSelectedCustomerID = (id) => {
@@ -330,7 +331,7 @@ function PopupContact() {
                     </Table>
                 </Modal.Body>
                 <Modal.Footer>                    
-                    <Button variant="success" size="sm" onClick={handleRelationSubmit} 
+                    <Button disabled={ submitBtnDecide } variant="success" size="sm" onClick={handleRelationSubmit} 
                     >
                         {submitBtnSpinner ? (
                             <Spinner

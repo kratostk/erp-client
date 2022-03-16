@@ -32,6 +32,7 @@ function PopupAddress() {
     const [AddressDistrict, setAddressDistrict] = useState('');
     const [AddressProvince, setAddressProvince] = useState('');
     const [AddressPostalCode, setAddressPostalCode] = useState('');
+    const submitBtnDecide = !latestAddress || !childID
     // ******************************* LOCAL STATES *******************************\\
 
 
@@ -81,7 +82,6 @@ function PopupAddress() {
 
     const handleCloseModal = () => {
         dispatch({type: 'CLOSE_ADD', payload: false})
-        setLatestAddress(null)
         setAddressType('')
         setAddressName('')
         setAddressDescription('')
@@ -91,6 +91,8 @@ function PopupAddress() {
         setAddressDistrict('')
         setAddressProvince('')
         setAddressPostalCode('')
+        setLatestAddress(null)
+        setChildID(null)
     }
 
     const renderSelectedCustomer = (id) => {
@@ -164,7 +166,7 @@ function PopupAddress() {
             <Modal
                 size="xl"
                 show={stateAddressModal}
-                onHide={() => dispatch({ type: 'CLOSE_ADD' })}
+                onHide={ handleCloseModal }
                 backdrop="static"
                 keyboard={false}
             >
@@ -382,10 +384,10 @@ function PopupAddress() {
                    
                 </Modal.Body>
                 <Modal.Footer>                   
-                    <Button variant="success" size="sm" onClick={ handleRelationSubmit }>
+                    <Button disabled={ submitBtnDecide } variant="success" size="sm" onClick={ handleRelationSubmit }>
                         Submit
                     </Button>
-                    <Button variant="secondary" onClick={() => dispatch({ type: 'CLOSE_ADD' })} size="sm">
+                    <Button variant="secondary" onClick={ handleCloseModal } size="sm">
                         Close
                     </Button>
                 </Modal.Footer>

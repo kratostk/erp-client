@@ -30,6 +30,7 @@ function PopupAddAddress({ isChildIDSet ,isAddedContact, getSelectedAddressID })
     const handleShow = () => setShow(true);
     const handleClose = () => {
         setCheckboxState(false)
+        setSaveBtnSpinner(false)
         setShow(false)
     };
 
