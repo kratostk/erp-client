@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Button, Form, Col, Row } from 'react-bootstrap'
+import { Modal, Button, Form, Col, Row, Spinner } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 import { addAddress } from '../../redux/address/asyncActions'
 
@@ -13,6 +13,7 @@ function PopupAddAddress({ isChildIDSet ,isAddedContact, getSelectedAddressID })
     // ************************** LOCAL STATES ***************************\\
     const [ checkboxState, setCheckboxState ] = useState(false)
     const [ selectedAddressID, setSelectedAddressID ] = useState(null)
+    const [ saveBtnSpinner, setSaveBtnSpinner ] = useState(false)
     const [show, setShow] = useState(false);
 
     const [AddressType, setAddressType] = useState('');
@@ -38,6 +39,7 @@ function PopupAddAddress({ isChildIDSet ,isAddedContact, getSelectedAddressID })
     const handleSave = (e) => {
         e.preventDefault();
         
+        setSaveBtnSpinner(true)
         // if use existing customer dont make request
         if(!checkboxState) {
             const addressData = {
@@ -53,14 +55,16 @@ function PopupAddAddress({ isChildIDSet ,isAddedContact, getSelectedAddressID })
             };
             // setSpinnerState(true)
             dispatch(addAddress(addressData)) // <-- return promise
-            .then(id => {
+            .then(data => {
                 //setSpinnerState(false) // stop loading animation
-                getSelectedAddressID(id) // set just created row id to be used to reference in relation table
+                getSelectedAddressID(data.IdMasterData) // set just created row id to be used to reference in relation table
+                setSaveBtnSpinner(false)
                 handleClose()
             })
             .catch(err => {
                 //setSpinnerState(false)
                 console.log(err)
+                setSaveBtnSpinner(false)
             })
         }else {
             // SELECT CUSTOMER FROM EXISTING DATA
@@ -184,7 +188,17 @@ function PopupAddAddress({ isChildIDSet ,isAddedContact, getSelectedAddressID })
                     </div >
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="success" size="sm" onClick={handleSave}>Save</Button>
+                    <Button variant="success" size="sm" onClick={handleSave}>
+                        {saveBtnSpinner ? (
+                                <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                            />
+                        ): null}
+                        Save</Button>
                     <Button variant="secondary" onClick={handleClose} size="sm">
                         Close
                     </Button>

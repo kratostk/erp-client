@@ -3,7 +3,6 @@ import PopupAddAddress from '../Step3PopupAdd/PopupAddAddress';
 import React, { useState } from 'react';
 import { Modal, Button, Table, Form, Col, Row, Container, Spinner } from 'react-bootstrap'
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux'
 import { closeCustomerModal } from '../../redux/actions'
 import { addCustomer } from '../../redux/customer/asyncActions'
@@ -44,6 +43,8 @@ function PopupCustomer() {
     const [CustomerFAX, setCustomerFAX] = useState('');
     // ********************************* LOCAL STATES ******************************\\
 
+
+    // ********************************* PASS TO CHILD COMPONENTS FUNCTIONS ****************************\\
     const getSelectedContactID = (id) => {
         setChildID({
             isBusy: true,
@@ -59,6 +60,7 @@ function PopupCustomer() {
             data: id
         })
     }
+    // ********************************* PASS TO CHILD COMPONENTS FUNCTIONS ****************************\\
 
     //-------- Function validated  ------------
     // const [validated, setValidated] = useState(false);
@@ -74,7 +76,20 @@ function PopupCustomer() {
     // };
 
     
+    // ********************************* MODAL HANDLING FUNCTIONS ****************************\\
+    const handleCloseModal = () => {
+        dispatch({type: 'CLOSE_CUS', payload: false})
+        setLastCustomer(null)
+        setCustomerType('')
+        setCustomerName('')
+        setCustomerPhone('')
+        setCustomerEmail('')
+        setCustomerFAX('')
+    }
+    // ********************************* MODAL HANDLING FUNCTIONS ****************************\\
 
+
+    // ********************************* ADD CUSTOMER HANDLE ****************************\\
     const handleAddCustomer = async function (e) {
         e.preventDefault();
         setSaveBtnSpinner(true)
@@ -101,18 +116,11 @@ function PopupCustomer() {
             setSaveBtnSpinner(false)
         }
     };
+    // ********************************* ADD CUSTOMER HANDLE ****************************\\
 
-    const handleCloseModal = () => {
-        dispatch({type: 'CLOSE_CUS', payload: false})
-        setLastCustomer(null)
-        setCustomerType('')
-        setCustomerName('')
-        setCustomerPhone('')
-        setCustomerEmail('')
-        setCustomerFAX('')
-    }
+    
 
-
+    // ********************************* RELATION SUBMIT HANDLE ****************************\\
     const handleRelationSubmit = async () => {
         if(childID.isBusy && childID.target === 'address') {
             try {
@@ -137,7 +145,10 @@ function PopupCustomer() {
         }
         
     }
+    // ********************************* RELATION SUBMIT HANDLE ****************************\\
 
+
+    // ********************************* FILTER && CONDITIONAL RENDER SELECTED WHETHER ADDRESS || CONTACT ****************************\\
     const renderSelectedChildData = (childData) => {
         // const f = customers.filter(c => c.IdMasterData == id)
 
@@ -199,9 +210,10 @@ function PopupCustomer() {
             return null
         }
     }
+    // ********************************* FILTER && CONDITIONAL RENDER SELECTED WHETHER ADDRESS || CONTACT ****************************\\
 
 
-    // FILTER RELATIONAL ADDRESS FROM CURRENT CUSTOMER 
+    // ********************************* FILTER ADDRESS THAT HAVE RELATION WITH CUSTOMER OUT OF RELATION COLLECTION ****************************\\
     const filterRelationAddress = (customer_ID) => {
         if(!customer_ID) return null;
 
@@ -218,8 +230,10 @@ function PopupCustomer() {
         
         setAddressArr(res)  
     }
+    // ********************************* FILTER ADDRESS THAT HAVE RELATION WITH CUSTOMER OUT OF RELATION COLLECTION ****************************\\
 
-    // FILTER RELATIONAL CONTACT FROM CURRENT CUSTOMER 
+
+    // ********************************* FILTER CONTACT THAT HAVE RELATION WITH CUSTOMER OUT OF RELATION COLLECTION ****************************\\
     const filterRelationContact = (customer_ID) => {
         if(!customer_ID) return null;
 
@@ -236,6 +250,7 @@ function PopupCustomer() {
         
         setContactArr(res)  
     }
+    // ********************************* FILTER ADDRESS THAT HAVE RELATION WITH CUSTOMER OUT OF RELATION COLLECTION ****************************\\
 
     React.useEffect(() => {
         filterRelationAddress(lastCustomer)
