@@ -36,7 +36,7 @@ function PopupCustomer() {
     const [ contactArr, setContactArr ] = useState(null)
 
     //--------------------
-    const [CustomerType, setCustomerType] = useState(null);
+    const [CustomerType, setCustomerType] = useState('company');
     const [CustomerName, setCustomerName] = useState('');
     const [CustomerPhone, setCustomerPhone] = useState('');
     const [CustomerEmail, setCustomerEmail] = useState('');
@@ -96,6 +96,7 @@ function PopupCustomer() {
 
     // ********************************* ADD CUSTOMER HANDLE ****************************\\
     const handleAddCustomer = async function (e) {
+
         e.preventDefault();
         const form = e.currentTarget;
         if (form.checkValidity() === false) {
@@ -297,8 +298,8 @@ function PopupCustomer() {
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="CustomerTypeDropdown">
                                     <Form.Label>Customer type</Form.Label>
-                                    <Form.Select defaultValue="Please select Customer type" type="CustomerType" value={CustomerType} onChange={(e) => setCustomerType(e.target.value)} required>
-                                        <option selected disabled value="">Please select Customer type</option>
+                                    <Form.Select defaultValue="company" type="CustomerType" value={CustomerType} onChange={(e) => setCustomerType(e.target.value)} required>
+                                        {/* <option selected disabled value="">Please select Customer type</option> */}
                                         <option value='company'>Company</option>
                                         <option value='personal'>Personal</option>
                                     </Form.Select>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Table, Row, Col, Modal, Form } from 'react-bootstrap'
+import { Button, Table, Row, Col, Modal, Form, Spinner } from 'react-bootstrap'
 import Axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux'
 import { openCustomerModal, closeCustomerModal } from '../../redux/actions'
@@ -16,6 +16,7 @@ function MasterCustomer() {
     const [ filterData, setFilterData ] = useState([])
     const [ selectedCustomer, setSelectedCustomer ] = useState(null)
     const [ showEditModal, setShowEditModal ] = useState(null)
+    const [ updateBtnSpinner, setUpdateBtnSpinner ] = useState(false)
 
     // ------- messy states
     const [ type, setType ] = useState(null)
@@ -36,7 +37,6 @@ function MasterCustomer() {
     const handleShow = () => {
         dispatch({type: "TOGGLE_CUSTOMER_POPUP", payload: true})
         // setShow(true)
-        // console.log(show);
     };
     // ****************************** MODAL HANDLING FUNCTIONS ******************************\\
     
@@ -44,9 +44,9 @@ function MasterCustomer() {
     const handleOpenEdit = (customer) => {
         setSelectedCustomer(customer)
         setShowEditModal(true)
-        console.log(customer)
     }
     const handleUpdateCustomer = () => {
+        setUpdateBtnSpinner(true)
         const pendingUpdateData = {
             CustomerType: type ? type : selectedCustomer.Customer_Type,
             CustomerName: company ? company : selectedCustomer.Company,
@@ -58,6 +58,10 @@ function MasterCustomer() {
         dispatch(updateCustomer(pendingUpdateData))
         .then(() => {
             setShowEditModal(false)
+            setUpdateBtnSpinner(false)
+        }).catch(err => {
+            console.error(err)
+            setUpdateBtnSpinner(false)
         })
 
     }
@@ -155,7 +159,7 @@ function MasterCustomer() {
                     </Col>
 
                     <Col >
-                        <div class="col float-end">
+                        <div className="col float-end">
                             <Button variant="success" size="sm" onClick={() => dispatch({ type: 'OPEN_CUS', payload: true })} >
                                 Add Customer
                             </Button>
@@ -179,7 +183,7 @@ function MasterCustomer() {
                     { renderData }
                 </tbody>
             </Table>
-            <div class="col float-end">
+            <div className="col float-end">
                 <Button variant="danger"  size="sm">Export</Button>
             </div>
 
@@ -265,7 +269,17 @@ function MasterCustomer() {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button onClick={ handleDelete } variant="danger" size="sm">DELETE</Button>
-                    <Button onClick={ handleUpdateCustomer } disabled={ updateBtnDecide } variant="success" size="sm">UPDATE</Button>
+                    <Button onClick={ handleUpdateCustomer } disabled={ updateBtnDecide } variant="success" size="sm">
+                        { updateBtnSpinner ? (
+                            <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                        />
+                        ): null}
+                        UPDATE</Button>
                     <Button variant="secondary" onClick={() => setShowEditModal(false)} size="sm">
                         CLOSE
                     </Button>

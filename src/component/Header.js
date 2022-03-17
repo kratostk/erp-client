@@ -18,14 +18,14 @@ function Header() {
                         <Col sm={2}> </Col>
                         <Col sm={3}>
                             <br />
-                            <p className="text-center" className="Text2"> บริษัท คราทอส แทรคกิ้ง จำกัด <br /> KRATOS TRACKING CO.,LTD.</p>
+                            <p className="text-center Text2"> บริษัท คราทอส แทรคกิ้ง จำกัด <br /> KRATOS TRACKING CO.,LTD.</p>
                         </Col>
                         <Col sm={4}>
                             <div className="col float-end">
                                 <br />
                                 <BsFillPeopleFill size="2em" className="col float-end" /> <br />
                                 
-                                <p class="text-center" className="Text2"> {userData ? userData.fullName : 'Anonymous'}</p>
+                                <p className="logutBtn"> {userData ? userData.fullName : 'Anonymous'}</p>
                             </div>            
                         </Col>
                     </Row>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Table, Row, Col, Container, Form, Modal } from 'react-bootstrap'
+import { Button, Table, Row, Col, Container, Form, Modal, Spinner } from 'react-bootstrap'
 import Axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux'
 import { openContactModal, closeContactModal } from '../../redux/actions'
@@ -17,7 +17,6 @@ function MasterContact() {
     const myContacts = useSelector(state => state.contacts.contacts)
     const customerContacts = useSelector(state => state.relationships.customerContacts) // -> filter
     const customerAddresses = useSelector(state => state.relationships.customerAddresses) // -> filter
-    console.log('contacts', contacts)
     // ############################################### REDUX STORE ###############################################\\
 
     // ############################################### LOCAL STATE ###############################################\\
@@ -25,6 +24,8 @@ function MasterContact() {
     const [ filterData, setFilterData ] = useState([])
     const [ selectedContact, setSelectedContact ] = useState(null)
     const [ contactsArr, setContactsArr ] = useState([])
+    const [ updateBtnSpinner, setUpdateBtnSpinner ] = useState(false)
+    
     const [show, setShow] = useState(false);
     const handleClose = function (m) {
         setShow(m);
@@ -44,9 +45,10 @@ function MasterContact() {
     const handleOpenEdit = (contact) => {
         setSelectedContact(contact)
         setShowEditModal(true)
-        console.log(contact)
     }
+
     const handleUpdateContact = () => {
+        setUpdateBtnSpinner(true)
         const pendingUpdateData = {
             ContactType: type ? type : selectedContact.Type,
             ContactName: name ? name : selectedContact.Name,
@@ -58,6 +60,10 @@ function MasterContact() {
         dispatch(updateContact(pendingUpdateData))
         .then(() => {
             setShowEditModal(false)
+            setUpdateBtnSpinner(false)
+        })
+        .catch(err => {
+            setUpdateBtnSpinner(false)
         })
 
     }
@@ -152,14 +158,11 @@ function MasterContact() {
         //1 filter contactID out of relationship collection
         if(!contact_ID) return null;
 
-        console.log('i get called', contact_ID)
-        console.log(customerContacts)
 
         const collectionOfTargetContactID = customerContacts.filter(item => item.Contact_Id === contact_ID.IdMasterData)
         // {conID: 0, cusID: 1},
         // {conID: 0, cusID: 2},
         // ...
-        console.log('here is after filtered', collectionOfTargetContactID)
 
         let res = []
         for(let i = 0; i < collectionOfTargetContactID.length; i++) {
@@ -171,7 +174,6 @@ function MasterContact() {
               }
             }
         }
-        console.log(res)
         setContactsArr(res)  
     }
     // ------------------Conditional render data -------------------------
@@ -191,7 +193,7 @@ function MasterContact() {
                     </Col>
 
                     <Col >
-                        <div class="col float-end">
+                        <div className="col float-end">
                             <Button variant="success" size="sm" onClick={() => dispatch({ type: 'OPEN_CON', payload: true })} >
                                 Add Contact
                             </Button>
@@ -215,7 +217,7 @@ function MasterContact() {
                     { renderData }
                 </tbody>
             </Table>
-            <div class="col float-end">
+            <div className="col float-end">
                 <Button variant="danger" size="sm">Export</Button>
             </div>
 
@@ -267,7 +269,17 @@ function MasterContact() {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button onClick={ handleDelete } variant="danger" size="sm">DELETE</Button>
-                    <Button onClick={ handleUpdateContact } variant="success" size="sm" disabled={ updateBtnDecide }>UPDATE</Button>
+                    <Button onClick={ handleUpdateContact } variant="success" size="sm" disabled={ updateBtnDecide }>
+                        { updateBtnSpinner ? (
+                            <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                        />
+                        ): null}
+                        UPDATE</Button>
                     <Button variant="secondary" onClick={() => setShowEditModal(false)} size="sm">
                         CLOSE
                     </Button>

@@ -21,7 +21,7 @@ export const addCustomer = ( inputCustomerData ) => {
             .then(res => {
                 const { output_id } = res.data.data;
                 const customerConstants = {
-                    Type: inputCustomerData.CustomerType,
+                    Customer_Type: inputCustomerData.CustomerType,
                     Company: inputCustomerData.CustomerName,
                     Phone: inputCustomerData.CustomerPhone,
                     Email: inputCustomerData.CustomerEmail,
@@ -40,7 +40,8 @@ export const addCustomer = ( inputCustomerData ) => {
 
 export const updateCustomer = ( inputContactData ) => {
     const contactConstants = {
-        Name: inputContactData.CustomerName,
+        Customer_Type: inputContactData.CustomerType,
+        Company: inputContactData.CustomerName,
         Type: inputContactData.CustomerType,
         Phone: inputContactData.CustomerPhone,
         Email: inputContactData.CustomerEmail,

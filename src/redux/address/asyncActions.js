@@ -22,7 +22,7 @@ export const addAddress = ( inputAddressData ) => {
                 const { output_id } = res.data.data;
                 const addressConstants = {
                     Name: inputAddressData.AddressName,
-                    Type: inputAddressData.AddressType,
+                    TypeAddress: inputAddressData.AddressType,
                     Description: inputAddressData.AddressDescription,
                     Number: inputAddressData.AddressNumber,
                     Building: inputAddressData.AddressBuilding,
@@ -74,7 +74,7 @@ export const updateAddress = ( inputAddressData ) => {
 export const deleteAddress = ( id ) => {
     return dispatch => {
         return new Promise((resolve, reject) => {
-            axios.delete(`api/contact/${ id }`, { withCredentials: true })
+            axios.delete(`api/address/${ id }`, { withCredentials: true })
             .then(res => {
                 
                 dispatch({ type: delete_address, payload: id })

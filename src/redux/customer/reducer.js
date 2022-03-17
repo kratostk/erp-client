@@ -30,11 +30,12 @@ const customerReducer = (state = initState, action) => {
                 }
             }
         case "UPDATE_CUSTOMER":
+            console.log(action)
             return {
                 ...state,
                 customers: {
                     ...state.customers,
-                    data: state.customers.data.filter((item) => item.IdMaasterData === action.payload.IdMaasterData ? item = action.payload : state.customers.data)
+                    data: state.customers.data.map((item) => item.IdMasterData === action.payload.IdMasterData ? action.payload : item)
                 }
             }
         case "DELETE_CUSTOMER":

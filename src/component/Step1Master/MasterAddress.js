@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { Button, Table, Row, Col, Container, Form, Modal } from 'react-bootstrap'
+import { Button, Table, Row, Col, Container, Form, Modal, Spinner } from 'react-bootstrap'
 import Axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux'
 import { openAddressModal, closeAddressModal } from '../../redux/actions'
@@ -19,6 +19,7 @@ function MasterAddress() {
     const [ showEditModal, setShowEditModal ] = useState(null)
     const [ selectedAddress, setSelectedAddress ] = useState(null)
     const [show, setShow] = useState(false);
+    const [ updateBtnSpinner, setUpdateBtnSpinner ] = useState(false)
 
     //------messy state
     const [ type, setType ] = useState(null)
@@ -30,7 +31,7 @@ function MasterAddress() {
     const [ district, setDistrict ] = useState(null)
     const [ province, setProvince ] = useState(null)
     const [ postalCode , setPostalCode ] = useState(null)
-    const updateBtnDecide = !name && !description && !addressNum && !building && !subDistrict && !district && !province && !postalCode
+    const updateBtnDecide = !type && !name && !description && !addressNum && !building && !subDistrict && !district && !province && !postalCode
     // ******************************* LOCAL STATE *******************************//
 
     // ******************************* MODAL HANDLE FUNCTIONS ****************************\\
@@ -62,6 +63,7 @@ function MasterAddress() {
 
     //################################### EDIT FUNCTIONS ########################################\\
     const handleUpdateAddress = () => {
+        setUpdateBtnSpinner(true)
         const pendingUpdateData = {
             AddressType: type ? type : selectedAddress.TypeAddress,
             AddressName: name ? name : selectedAddress.Name,
@@ -77,11 +79,15 @@ function MasterAddress() {
         dispatch(updateAddress(pendingUpdateData))
         .then(() => {
             setShowEditModal(false)
+            setUpdateBtnSpinner(false)
+        })
+        .catch(err => {
+            console.error(err)
+            setUpdateBtnSpinner(false)
         })
 
     }
     const handleOpenEdit = (address) => {
-        console.log(address)
         setSelectedAddress(address)
         setShowEditModal(true)
     }
@@ -191,7 +197,7 @@ function MasterAddress() {
                     </Col>
 
                     <Col >
-                        <div class="col float-end">
+                        <div className="col float-end">
                             <Button variant="success" size="sm" onClick={() => dispatch({ type: 'OPEN_ADD' })} >
                                 Add Address
                             </Button>
@@ -220,7 +226,7 @@ function MasterAddress() {
                     { renderAddresses }
                 </tbody>
             </Table>
-            <div class="col float-end">
+            <div className="col float-end">
                 <Button variant="danger" size="sm">Export</Button>
             </div>
 
@@ -271,7 +277,17 @@ function MasterAddress() {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button onClick={ handleDelete } variant="danger" size="sm">DELETE</Button>
-                    <Button onClick={ handleUpdateAddress } disabled={ updateBtnDecide } variant="success" size="sm">UPDATE</Button>
+                    <Button onClick={ handleUpdateAddress } disabled={ updateBtnDecide } variant="success" size="sm">
+                        { updateBtnSpinner ? (
+                            <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                        />
+                        ): null}
+                        UPDATE</Button>
                     <Button variant="secondary" onClick={() => setShowEditModal(false)} size="sm">
                         CLOSE
                     </Button>

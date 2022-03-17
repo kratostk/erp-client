@@ -16,21 +16,21 @@ function MenuBar() {
             <Row>
                 <Col>
                     <Tabs
-                        defaultActiveKey="home"
+                        defaultActiveKey="customer"
                         transition={false}
                         id="noanim-tab-example"
                         className="mb-3"
                         >
                         <Tab eventKey="customer" title="Customer">
-                            {/* <Sonnet /> */}
+                            <PopupCustomer />
                             <MasterCustomer/>
                         </Tab>
                         <Tab eventKey="contact" title="Contact">
-                            {/* <Sonnet /> */}
+                            <PopupContact />
                             <MasterContact/>
                         </Tab>
                         <Tab eventKey="address" title="Address">
-                            {/* <Sonnet /> */}
+                            <PopupAddress />    
                             <MasterAddress/>
                         </Tab>
                     </Tabs>

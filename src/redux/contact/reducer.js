@@ -34,7 +34,7 @@ const contactReducer = (state = initState, action) => {
                 ...state,
                 contacts: {
                     ...state.contacts,
-                    data: state.contacts.data.filter((item) => item.IdMaasterData === action.payload.IdMaasterData ? item = action.payload : state.contacts.data)
+                    data: state.contacts.data.map((item) => item.IdMasterData === action.payload.IdMasterData ? action.payload : item)
                 }
             }
         case "DELETE_CONTACT":

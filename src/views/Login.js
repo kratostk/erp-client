@@ -63,7 +63,7 @@ function Login() {
                             <br /><br />
                             <img src={Logo} className="Logo" alt="logo" />
                             <div class="d-flex justify-content-center">
-                                <h3>Sign In</h3>
+                                <h3>Log In</h3>
                             </div>
                             {errMsg.isErr ?
                                 <div>

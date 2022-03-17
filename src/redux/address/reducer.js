@@ -33,7 +33,7 @@ const addressReducer = (state = initState, action) => {
                 ...state,
                 addresses: {
                     ...state.contacts,
-                    data: state.addresses.data.filter((item) => item.IdMaasterData === action.payload.IdMaasterData ? item = action.payload : state.addresses.data)
+                    data: state.addresses.data.map((item) => item.IdMasterData === action.payload.IdMasterData ? action.payload : item)
                 }
             }
         case "DELETE_ADDRESS":
