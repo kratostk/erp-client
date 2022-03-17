@@ -23,6 +23,7 @@ function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
     const [CustomerPhone, setCustomerPhone] = useState('');
     const [CustomerEmail, setCustomerEmail] = useState('');
     const [CustomerFAX, setCustomerFAX] = useState('');
+    const [validated, setValidated] = useState(false);
     //**************************** LOCAL STATE *****************************\\
 
     //************************* Modal Handle Function *************************//

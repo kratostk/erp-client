@@ -6,7 +6,7 @@ import Axios from 'axios';
 import { useSelector } from 'react-redux'
 
 
-function PopupEditContact() {
+function PopupEditContact({ contactID }) {
     // -------- REDUX STORE -------------- ✔️✔️✔️✔️✔️✔️✔️✔️✔️✔️✔️✔️
     const contacts = useSelector(state => state.contacts.contacts.data) // 👈👈👈👈👈👈👈👈👈👈👈👈👈
     // -------- REDUX STORE --------------
@@ -15,64 +15,46 @@ function PopupEditContact() {
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    /************** JUST GET DATA FROM REDUX !!!!!!!!!!!!*****************************
-     * ❌❌❌❌❌❌❌❌❌
-    // const [Contacts, setContacts] = React.useState([]);
-    // React.useEffect(() => {
-    //     Axios.get('http://localhost:5000/api/contact', { withCredentials: true })
-    //         .then(res => {
-    //             console.log(res)
-    //             setContacts(res.data.recordset)
-    //         })
-    //         .catch(err => {
-    //             console.error(err)
-    //         })
-    // }, [])
-    ❌❌❌❌❌❌❌❌❌❌❌
-    */
+    const renderData = contacts.filter((item) => item.IdMasterData === contactID ? (
+        <div className="contactmodal" key={item.IdMasterData} >
+            <Form>
+                <Row className="mb-3">
+                    <Form.Group as={Col} controlId="ContactTypeDropdown">
+                        <Form.Label>Contact type</Form.Label>
+                        <Form.Select defaultValue="Please select Customer type">
+                            <option>Please select Contact type</option>
+                            <option>...</option>
+                        </Form.Select>
+                    </Form.Group>
 
-    const renderData = contacts.map((item, i) => {
-        return (
-            <div className="contactmodal" key={i} >
-                <Form>
-                    <Row className="mb-3">
-                        <Form.Group as={Col} controlId="ContactTypeDropdown">
-                            <Form.Label>Contact type</Form.Label>
-                            <Form.Select defaultValue="Please select Customer type">
-                                <option>Please select Contact type</option>
-                                <option>...</option>
-                            </Form.Select>
-                        </Form.Group>
+                    <Form.Group as={Col} controlId="ContactNameInput">
+                        <Form.Label>Contact name</Form.Label>
+                        <Form.Control type="ContactName" placeholder="Contact name" value={item.Name}/>
+                    </Form.Group>
+                </Row>
+                <Row className="mb-3">
+                    <Form.Group as={Col} controlId="EmailInput">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control type="Email" placeholder="Email" value={item.Email} />
+                    </Form.Group>
 
-                        <Form.Group as={Col} controlId="ContactNameInput">
-                            <Form.Label>Contact name</Form.Label>
-                            <Form.Control type="ContactName" placeholder="Contact name" value={item.Name}/>
-                        </Form.Group>
-                    </Row>
-                    <Row className="mb-3">
-                        <Form.Group as={Col} controlId="EmailInput">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control type="Email" placeholder="Email" value={item.Email} />
-                        </Form.Group>
+                    <Form.Group as={Col} controlId="PhoneInput">
+                        <Form.Label>Phone</Form.Label>
+                        <Form.Control type="Phone" placeholder="Phone" value={item.Phone}/>
+                    </Form.Group>
 
-                        <Form.Group as={Col} controlId="PhoneInput">
-                            <Form.Label>Phone</Form.Label>
-                            <Form.Control type="Phone" placeholder="Phone" value={item.Phone}/>
-                        </Form.Group>
-
-                        <Form.Group as={Col} controlId="FAXInput">
-                            <Form.Label>FAX</Form.Label>
-                            <Form.Control type="FAX" placeholder="FAX" value={item.FAX} />
-                        </Form.Group>
-                    </Row>
-                </Form>
-            </div>
-        )
-    })
+                    <Form.Group as={Col} controlId="FAXInput">
+                        <Form.Label>FAX</Form.Label>
+                        <Form.Control type="FAX" placeholder="FAX" value={item.FAX} />
+                    </Form.Group>
+                </Row>
+            </Form>
+        </div>
+    ) : null) 
 
     return (
         <>
-            <BsPencilSquare onClick={handleShow} />
+            {/* <BsPencilSquare onClick={handleShow} /> */}
 
             <Modal
                 size="lg"
@@ -82,7 +64,7 @@ function PopupEditContact() {
                 keyboard={false}
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Contact Detail</Modal.Title>
+                    <Modal.Title>Edit Contact</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {renderData}
@@ -115,7 +97,7 @@ function PopupEditContact() {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="danger" size="sm">Export</Button>
-                    <Button variant="success" size="sm">Save hi</Button>
+                    <Button variant="success" size="sm">Save</Button>
                     <Button variant="secondary" onClick={handleClose} size="sm">
                         Close
                     </Button>

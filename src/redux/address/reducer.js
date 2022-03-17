@@ -28,6 +28,22 @@ const addressReducer = (state = initState, action) => {
                     data: [ ...state.addresses.data, action.payload ]
                 }
             }
+        case "UPDATE_ADDRESS":
+            return {
+                ...state,
+                addresses: {
+                    ...state.contacts,
+                    data: state.addresses.data.filter((item) => item.IdMaasterData === action.payload.IdMaasterData ? item = action.payload : state.addresses.data)
+                }
+            }
+        case "DELETE_ADDRESS":
+            return {
+                ...state,
+                addresses: {
+                    ...state.addresses,
+                    data: state.addresses.data.filter((item) => item.IdMasterData !== action.payload)
+                }
+            }
         default:
             return state;
     }

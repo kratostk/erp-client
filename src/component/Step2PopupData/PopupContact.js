@@ -183,7 +183,7 @@ function PopupContact() {
             >
                 
                 <Modal.Header closeButton>
-                    <Modal.Title className='modal-header'>Contact Detail</Modal.Title>                                  
+                    <Modal.Title className='modal-header'>Create Contact</Modal.Title>                                  
                 </Modal.Header>
                 <Modal.Body>
                 <div className="contactmodal" >
@@ -279,13 +279,13 @@ function PopupContact() {
                             <Col><small>ID : <code>{lastContact.IdMasterData}</code></small></Col>
                         </Row>
                         <Row>
-                            <Col><p>Contact type : {lastContact.Type}</p></Col>
+                            <Col><p>Contact type : <b>{lastContact.Type}</b></p></Col>
                             <Col><p>Contact name : <b>{lastContact.Name}</b></p></Col>
                         </Row>
                         <Row>
-                            <Col><p>Phone : {lastContact.Phone}</p></Col>
-                            <Col><p>Email : {lastContact.Email}</p></Col>
-                            <Col><p>FAX : {lastContact.FAX}</p></Col>
+                            <Col><p>Phone : <b>{lastContact.Phone}</b></p></Col>
+                            <Col><p>Email : <b>{lastContact.Email}</b></p></Col>
+                            <Col><p>FAX : <b>{lastContact.FAX}</b></p></Col>
                         </Row>
 
                         

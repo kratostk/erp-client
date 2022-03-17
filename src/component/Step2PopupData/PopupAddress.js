@@ -93,6 +93,7 @@ function PopupAddress() {
         setAddressPostalCode('')
         setLatestAddress(null)
         setChildID(null)
+        setAddressArr([])
     }
 
     const renderSelectedCustomer = (id) => {
@@ -143,6 +144,9 @@ function PopupAddress() {
 
         const collectionOfTargetAddressID = customerAddresses.filter(item => item.addID === address_ID.IdMasterData)
 
+        console.log('address relation', customerAddresses)
+        console.log('address relation', collectionOfTargetAddressID)
+
         let res = []
         for(let i = 0; i < collectionOfTargetAddressID.length; i++) {
             for(let j = 0; j < customers.length; j++) {
@@ -153,7 +157,7 @@ function PopupAddress() {
               }
             }
         }
-        
+        console.log(res)
         setAddressArr(res)  
     }
     React.useEffect(() => {
@@ -171,7 +175,7 @@ function PopupAddress() {
                 keyboard={false}
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Address Detail</Modal.Title>                   
+                    <Modal.Title>Create Address</Modal.Title>                   
                 </Modal.Header>
                 <Modal.Body>
                     <div >
@@ -322,19 +326,19 @@ function PopupAddress() {
                                     
                                 </Row>
                                 <Row>
-                                    <Col><p>Address type : {latestAddress.Type}</p></Col>
-                                    <Col><p>Address name : {latestAddress.Name}</p></Col>
-                                    <Col><p>Description: {latestAddress.Description}</p></Col>
+                                    <Col><p>Address type : <b>{latestAddress.Type}</b></p></Col>
+                                    <Col><p>Address name : <b>{latestAddress.Name}</b></p></Col>
+                                    <Col><p>Description : <b>{latestAddress.Description}</b></p></Col>
                                 </Row>
                                 <Row>
-                                    <Col><p>Address number: {latestAddress.Number}</p></Col>
-                                    <Col><p>Building: {latestAddress.Building}</p></Col>
-                                    <Col><p>SubDistrict: {latestAddress.SubDistrict}</p></Col>
+                                    <Col><p>Address number : <b>{latestAddress.Number}</b></p></Col>
+                                    <Col><p>Building : <b>{latestAddress.Building}</b></p></Col>
+                                    <Col><p>SubDistrict : <b>{latestAddress.SubDistrict}</b></p></Col>
                                 </Row>
                                 <Row>
-                                    <Col><p>District: {latestAddress.District}</p></Col>
-                                    <Col><p>Province: {latestAddress.Province}</p></Col>
-                                    <Col><p>PostalCode: {latestAddress.PostalCode}</p></Col>
+                                    <Col><p>District : <b>{latestAddress.District}</b></p></Col>
+                                    <Col><p>Province : <b>{latestAddress.Province}</b></p></Col>
+                                    <Col><p>PostalCode : <b>{latestAddress.PostalCode}</b></p></Col>
                                 </Row>         
 
                                 { renderSelectedCustomer(childID) }                                

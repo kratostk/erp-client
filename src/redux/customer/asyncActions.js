@@ -1,5 +1,5 @@
 import axios from '../../apis/api'
-import { set_customers, add_customer } from './actionTypes'
+import { set_customers, add_customer, update_customer, delete_customer } from './actionTypes'
 
 export const getCustomers = () => {
     return dispatch => {
@@ -34,6 +34,41 @@ export const addCustomer = ( inputCustomerData ) => {
             .catch(err => {
                 reject(err)
             })
+        })
+    }
+}
+
+export const updateCustomer = ( inputContactData ) => {
+    const contactConstants = {
+        Name: inputContactData.CustomerName,
+        Type: inputContactData.CustomerType,
+        Phone: inputContactData.CustomerPhone,
+        Email: inputContactData.CustomerEmail,
+        FAX: inputContactData.CustomerFAX
+    }
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            axios.put(`api/customer/${ inputContactData.IdMasterData }`, contactConstants, { withCredentials: true })
+            .then(res => {
+                
+                dispatch({ type: update_customer, payload: {...contactConstants, IdMasterData: inputContactData.IdMasterData} })
+                resolve()
+            })
+            .catch(err => reject(err))
+        })
+    }
+}
+
+export const deleteCustomer = ( id ) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            axios.delete(`api/customer/${ id }`, { withCredentials: true })
+            .then(res => {
+                
+                dispatch({ type: delete_customer, payload: id })
+                resolve()
+            })
+            .catch(err => reject(err))
         })
     }
 }

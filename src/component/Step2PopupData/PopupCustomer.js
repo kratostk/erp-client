@@ -41,6 +41,7 @@ function PopupCustomer() {
     const [CustomerPhone, setCustomerPhone] = useState('');
     const [CustomerEmail, setCustomerEmail] = useState('');
     const [CustomerFAX, setCustomerFAX] = useState('');
+    const [validated, setValidated] = useState(false);
     const submitBtnDecide = !lastCustomer || !childID.isBusy
     // ********************************* LOCAL STATES ******************************\\
 
@@ -86,6 +87,9 @@ function PopupCustomer() {
         setCustomerPhone('')
         setCustomerEmail('')
         setCustomerFAX('')
+        setChildID({ isBusy: false, target: null, data: null })
+        setAddressArr(null)
+        setContactArr(null)
     }
     // ********************************* MODAL HANDLING FUNCTIONS ****************************\\
 
@@ -93,6 +97,17 @@ function PopupCustomer() {
     // ********************************* ADD CUSTOMER HANDLE ****************************\\
     const handleAddCustomer = async function (e) {
         e.preventDefault();
+        const form = e.currentTarget;
+        if (form.checkValidity() === false) {
+            // if form is invalid
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('form has error')
+            setValidated(true)
+            return false
+        }
+
+        // If form is valid then make a request
         setSaveBtnSpinner(true)
         const customerData = {
             CustomerType : CustomerType,
@@ -168,15 +183,21 @@ function PopupCustomer() {
                     </Row>
                     <Row>
                         <p>ID : <code>{n.IdMasterData}</code></p>
+                    </Row>                  
+                    <Row>
+                        <Col><p>Address type : <b>{n.Type}</b></p></Col>
+                        <Col><p>Address name : <b>{n.Name}</b></p></Col>
+                        <Col><p>Description : <b>{n.Description}</b></p></Col>
                     </Row>
                     <Row>
-                        <Col><p>Customer type : <b>{n.Type}</b></p></Col>
-                        <Col><p>Customer name : <b>{n.Name}</b></p></Col>
+                        <Col><p>Address number : <b>{n.Number}</b></p></Col>
+                        <Col><p>Building : <b>{n.Building}</b></p></Col>
+                        <Col><p>SubDistrict : <b>{n.SubDistrict}</b></p></Col>
                     </Row>
                     <Row>
-                        <Col><p>Phone : <b>{n.Phone}</b></p></Col>
-                        <Col><p>Email : <b>{n.Email}</b></p></Col>
-                        <Col><p>FAX : <b>{n.FAX}</b></p></Col>
+                        <Col><p>District : <b>{n.District}</b></p></Col>
+                        <Col><p>Province : <b>{n.Province}</b></p></Col>
+                        <Col><p>PostalCode : <b>{n.PostalCode}</b></p></Col>
                     </Row>       
                 </div>
             ))
@@ -197,8 +218,8 @@ function PopupCustomer() {
                         <p>ID : <code>{n.IdMasterData}</code></p>
                     </Row>
                     <Row>
-                        <Col><p>Customer type : <b>{n.Type}</b></p></Col>
-                        <Col><p>Customer name : <b>{n.Name}</b></p></Col>
+                        <Col><p>Contact type : <b>{n.Type}</b></p></Col>
+                        <Col><p>Contact name : <b>{n.Name}</b></p></Col>
                     </Row>
                     <Row>
                         <Col><p>Phone : <b>{n.Phone}</b></p></Col>
@@ -268,19 +289,22 @@ function PopupCustomer() {
                 keyboard={false}
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Customer Detail</Modal.Title>
+                    <Modal.Title>Create Customer</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div >
-                    { !lastCustomer ? <Form onSubmit={handleAddCustomer}>
+                    { !lastCustomer ? <Form noValidate validated={validated} onSubmit={handleAddCustomer}>
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="CustomerTypeDropdown">
                                     <Form.Label>Customer type</Form.Label>
-                                    <Form.Select defaultValue="Please select Customer type" type="CustomerType" value={CustomerType} onChange={(e) => setCustomerType(e.target.value)}>
-                                        <option>Please select Customer type</option>
+                                    <Form.Select defaultValue="Please select Customer type" type="CustomerType" value={CustomerType} onChange={(e) => setCustomerType(e.target.value)} required>
+                                        <option selected disabled value="">Please select Customer type</option>
                                         <option value='company'>Company</option>
                                         <option value='personal'>Personal</option>
                                     </Form.Select>
+                                    <Form.Control.Feedback type="invalid">
+                                        Please provide a valid Customer type.
+                                    </Form.Control.Feedback>
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="CustomerNameInput">
@@ -292,24 +316,53 @@ function PopupCustomer() {
                                     placeholder="Customer name"  
                                     required />
                                     <Form.Control.Feedback type="invalid">
-                                        Please choose a Customer name.
+                                        Please provide a valid Customer name.
                                     </Form.Control.Feedback>
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
                                 <Form.Group as={Col} controlId="EmailInput">
                                     <Form.Label>Email</Form.Label>
-                                    <Form.Control type="Email" value={CustomerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="Email"/>
+                                    <Form.Control 
+                                        type="Email" 
+                                        value={CustomerEmail} 
+                                        onChange={(e) => setCustomerEmail(e.target.value)} 
+                                        placeholder="Email"
+                                        pattern="[A-Za-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                        required 
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        Please provide a valid Email.
+                                    </Form.Control.Feedback>
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="PhoneInput">
                                     <Form.Label>Phone</Form.Label>
-                                    <Form.Control type="Phone" value={CustomerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="Phone" />
+                                    <Form.Control 
+                                        type="Phone" 
+                                        value={CustomerPhone} 
+                                        onChange={(e) => setCustomerPhone(e.target.value)} 
+                                        placeholder="Phone" 
+                                        pattern="\d{10}"
+                                        required
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        Please provide a valid Phone.
+                                    </Form.Control.Feedback>
                                 </Form.Group>
 
                                 <Form.Group as={Col} controlId="FAXInput">
                                     <Form.Label>FAX</Form.Label>
-                                    <Form.Control type="FAX" value={CustomerFAX} onChange={(e) => setCustomerFAX(e.target.value)} placeholder="FAX" />
+                                    <Form.Control 
+                                        type="FAX" 
+                                        value={CustomerFAX} 
+                                        onChange={(e) => setCustomerFAX(e.target.value)} 
+                                        placeholder="FAX" 
+                                        required
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        Please provide a valid FAX.
+                                    </Form.Control.Feedback>
                                 </Form.Group>
                             </Row>
                             <Button 
@@ -329,13 +382,18 @@ function PopupCustomer() {
                     </Form> :
                          (
                          <>
-                            <small>ID : <code>{lastCustomer.IdMasterData}</code></small>
-                            <p>Customer name :{lastCustomer.Company}</p>
-                            <p>Phone : {lastCustomer.Phone}</p>
-                            <p>Email : {lastCustomer.Email}</p>
-                            <p>FAX : {lastCustomer.FAX}</p>  
-
-                            
+                            <Row>
+                                <Col><small>ID : <code>{lastCustomer.IdMasterData}</code></small></Col>
+                            </Row>
+                            <Row>
+                                <Col><p>Customer type : {lastCustomer.Type}</p></Col>
+                                <Col><p>Customer name : {lastCustomer.Company}</p></Col>
+                            </Row>
+                            <Row>
+                                <Col><p>Phone : {lastCustomer.Phone}</p></Col>
+                                <Col><p>Email : {lastCustomer.Email}</p></Col>
+                                <Col><p>FAX : {lastCustomer.FAX}</p></Col>
+                            </Row>                           
 
                             { renderSelectedChildData(childID) }           
                         </>

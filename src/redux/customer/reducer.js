@@ -29,6 +29,22 @@ const customerReducer = (state = initState, action) => {
                     data: [...state.customers.data, action.payload]
                 }
             }
+        case "UPDATE_CUSTOMER":
+            return {
+                ...state,
+                customers: {
+                    ...state.customers,
+                    data: state.customers.data.filter((item) => item.IdMaasterData === action.payload.IdMaasterData ? item = action.payload : state.customers.data)
+                }
+            }
+        case "DELETE_CUSTOMER":
+            return {
+                ...state,
+                customers: {
+                    ...state.customers,
+                    data: state.customers.data.filter((item) => item.IdMasterData !== action.payload)
+                }
+            }
         default:
             return state;
     }

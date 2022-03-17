@@ -2,7 +2,8 @@ const initState = {
     modals: {
         customer: false,
         address: false,
-        contact: false
+        contact: false,
+        editContact: false
     }
 }
 

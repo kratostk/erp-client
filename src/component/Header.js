@@ -25,7 +25,7 @@ function Header() {
                                 <br />
                                 <BsFillPeopleFill size="2em" className="col float-end" /> <br />
                                 
-                                <p class="text-center" className="Text2"> Username : {userData ? userData.fullName : 'Anonymous'}</p>
+                                <p class="text-center" className="Text2"> {userData ? userData.fullName : 'Anonymous'}</p>
                             </div>            
                         </Col>
                     </Row>

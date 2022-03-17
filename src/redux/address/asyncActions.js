@@ -1,5 +1,5 @@
 import axios from '../../apis/api'
-import { set_addresses, add_address } from './actionTypes'
+import { set_addresses, add_address, update_address, delete_address } from './actionTypes'
 
 export const getAddresses = () => {
     return dispatch => {
@@ -38,6 +38,49 @@ export const addAddress = ( inputAddressData ) => {
             .catch(err => {
                 reject(err)
             })
+        })
+    }
+}
+
+export const updateAddress = ( inputAddressData ) => {
+    
+    const addressConstants = {
+        Name: inputAddressData.AddressName,
+        Type: inputAddressData.AddressType,
+        Description: inputAddressData.AddressDescription,
+        AddressNumber: inputAddressData.AddressNumber,
+        Building: inputAddressData.AddressBuilding,
+        SubDistrict: inputAddressData.AddressSubDistrict,
+        District: inputAddressData.AddressDistrict,
+        Province: inputAddressData.AddressProvince,
+        PostalCode: inputAddressData.AddressPostalCode,
+    }
+    console.log(addressConstants)
+    return dispatch => {
+        return new Promise(( resolve, reject ) => {
+            axios.put(`api/address/${ inputAddressData.IdMasterData }`, addressConstants, { withCredentials: true })
+            .then(res => {
+                
+                dispatch({ type:  update_address, payload: {...addressConstants, IdMasterData: inputAddressData.IdMasterData}})
+                resolve()
+            })
+            .catch(err => {
+                reject(err)
+            })
+        })
+    }
+}
+
+export const deleteAddress = ( id ) => {
+    return dispatch => {
+        return new Promise((resolve, reject) => {
+            axios.delete(`api/contact/${ id }`, { withCredentials: true })
+            .then(res => {
+                
+                dispatch({ type: delete_address, payload: id })
+                resolve()
+            })
+            .catch(err => reject(err))
         })
     }
 }
