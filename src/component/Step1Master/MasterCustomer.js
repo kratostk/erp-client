@@ -10,6 +10,10 @@ function MasterCustomer() {
      // ****************************** REDUX STATE ******************************\\
     const dispatch = useDispatch()
     const customers = useSelector(state => state.customers.customers.data)
+    const contacts = useSelector(state => state.contacts.contacts.data) // from redux store
+    const addresses  = useSelector(state => state.addresses.addresses.data)
+    const customerAddresses = useSelector(state => state.relationships.customerAddresses) // -> filter
+    const customerContacts = useSelector(state => state.relationships.customerContacts) // -> filter
      // ****************************** REDUX STATE ******************************\\
 
     // ****************************** LOCAL STATES ******************************\\
@@ -17,6 +21,8 @@ function MasterCustomer() {
     const [ selectedCustomer, setSelectedCustomer ] = useState(null)
     const [ showEditModal, setShowEditModal ] = useState(null)
     const [ updateBtnSpinner, setUpdateBtnSpinner ] = useState(false)
+    const [ relationContactArr, setRelationContactArr ] = useState([])
+    const [ relationAddressArr, setRelationAddressArr ] = useState([])
 
     // ------- messy states
     const [ type, setType ] = useState(null)
@@ -146,9 +152,49 @@ function MasterCustomer() {
             </tr>
         )
     })
+
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ FILTER RELATION DATA @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\\
+    const filterRelationAddress = (customer_ID) => {
+        if(!customer_ID) return null;
+
+        const collectionOfTargetAddressID = customerAddresses.filter(item => item.Customer_Id === customer_ID.IdMasterData)
+
+        let res = []
+        for(let i = 0; i < collectionOfTargetAddressID.length; i++) {
+            for(let j = 0; j < addresses.length; j++) {
+              if(collectionOfTargetAddressID[i].Address_Id === addresses[j].IdMasterData){
+                res.push(addresses[j])
+              }
+            }
+        }
+        
+        setRelationAddressArr(res)  
+    }
+    const filterRelationContact = (customer_ID) => {
+        if(!customer_ID) return null;
+
+        const collectionOfTargetContactID = customerContacts.filter(item => item.Customer_Id === customer_ID.IdMasterData)
+
+        let res = []
+        for(let i = 0; i < collectionOfTargetContactID.length; i++) {
+            for(let j = 0; j < contacts.length; j++) {
+              if(collectionOfTargetContactID[i].Contact_Id === contacts[j].IdMasterData){
+                res.push(contacts[j])
+              }
+            }
+        }
+        
+        setRelationContactArr(res)  
+    }
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ FILTER RELATION DATA @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\\
     React.useEffect(() => {
         dispatch(getCustomers())
     }, [])
+    React.useEffect(() => {
+        filterRelationAddress(selectedCustomer)
+        filterRelationContact(selectedCustomer)
+    }, [customerAddresses, customerContacts , selectedCustomer ])
     // *********************************** RENDER && FILTER FUNCTIONS *********************************\\
 
     return (
@@ -217,7 +263,6 @@ function MasterCustomer() {
                                     <th>Description</th>
                                     <th>Address number</th>
                                     <th>Building</th>
-                                    <th>Street</th>
                                     <th>SubDistrict</th>
                                     <th>District</th>
                                     <th>Province</th>
@@ -225,19 +270,22 @@ function MasterCustomer() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>kratostracking</td>
-                                    <td>Office</td>
-                                    <td>kratos</td>
-                                    <td>968</td>
-                                    <td>ชั้น 5 อาคาร U-Chu Liang</td>
-                                    <td>ถนนพระรามที่ ๔</td>
-                                    <td>สีลม</td>
-                                    <td>บางรัก</td>
-                                    <td>กรุงเทพมหานคร</td>
-                                    <td>10500</td>
-                                </tr>
+                                
+                                { relationAddressArr ? relationAddressArr.map((item, i) => (
+                                    <tr>
+                                        <td>{i}</td>
+                                        <td>{item.TypeAddress}</td>
+                                        <td>{item.Name}</td>
+                                        <td>{item.Description}</td>
+                                        <td>{item.Number}</td>
+                                        <td>{item.Building}</td>
+                                        <td>{item.SubDistrict}</td>
+                                        <td>{item.District}</td>
+                                        <td>{item.Province}</td>
+                                        <td>{item.PostalCode}</td>
+                                    </tr>
+                                )): null }
+
                             </tbody>
                         </Table>
                         {/* <PopupAddContact /> */}
@@ -254,14 +302,18 @@ function MasterCustomer() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Sale</td>
-                                    <td>Phobdaw</td>
-                                    <td>ABC@gmail.com</td>
-                                    <td>0981234567</td>
-                                    <td>1234567890</td>
-                                </tr>
+                                
+                                { relationContactArr ? relationContactArr.map((item, i) => (
+                                    <tr>
+                                        <td>{i}</td>
+                                        <td>{ item.Type }</td>
+                                        <td>{ item.Name }</td>
+                                        <td>{ item.Email }</td>
+                                        <td>{ item.Phone }</td>
+                                        <td>{ item.FAX }</td>
+                                    </tr>
+                                )): null }
+
                             </tbody>
                         </Table>
 

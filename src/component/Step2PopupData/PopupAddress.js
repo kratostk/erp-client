@@ -23,7 +23,7 @@ function PopupAddress() {
     const [validated, setValidated] = useState(false);
     const [ saveBtnSpinner, setSaveBtnSpinner ] = useState(false)
 
-    const [AddressType, setAddressType] = useState('');
+    const [AddressType, setAddressType] = useState('public');
     const [AddressName, setAddressName] = useState('');
     const [AddressDescription, setAddressDescription] = useState('');
     const [AddressNumber, setAddressNumber] = useState('');
@@ -112,7 +112,7 @@ function PopupAddress() {
                     <p>ID : <code>{n.IdMasterData}</code></p>
                 </Row>
                 <Row>
-                    <Col><p>Customer type : <b>{n.Type}</b></p></Col>
+                    <Col><p>Customer type : <b>{n.Customer_Type}</b></p></Col>
                     <Col><p>Customer name : <b>{n.Company}</b></p></Col>
                 </Row>
                 <Row>
@@ -127,8 +127,8 @@ function PopupAddress() {
     const handleRelationSubmit = async () => {
         console.log('hi')
         try {
-            const res = await axios.post('http://localhost:5000/api/address/bind', { cusID:  childID, addID: latestAddress.IdMasterData}, { withCredentials: true })
-            dispatch({ type: 'UPDATE_REL_ADDRESS_CUSTOMER', payload: { cusID:  childID, addID: latestAddress.IdMasterData}})
+            const res = await axios.post('http://localhost:5000/api/address/bind', { Customer_Id:  childID, Address_Id: latestAddress.IdMasterData}, { withCredentials: true })
+            dispatch({ type: 'UPDATE_REL_ADDRESS_CUSTOMER', payload: { Customer_Id:  childID, Address_Id: latestAddress.IdMasterData}})
             setChildID(null) // for hiding selected customer
         }catch(err) {
             console.log(err)
@@ -142,7 +142,7 @@ function PopupAddress() {
     const filterRelationCustomer = (address_ID) => {
         if(!address_ID) return null;
 
-        const collectionOfTargetAddressID = customerAddresses.filter(item => item.addID === address_ID.IdMasterData)
+        const collectionOfTargetAddressID = customerAddresses.filter(item => item.Address_Id === address_ID.IdMasterData)
 
         console.log('address relation', customerAddresses)
         console.log('address relation', collectionOfTargetAddressID)
@@ -150,7 +150,7 @@ function PopupAddress() {
         let res = []
         for(let i = 0; i < collectionOfTargetAddressID.length; i++) {
             for(let j = 0; j < customers.length; j++) {
-              if(collectionOfTargetAddressID[i].cusID === customers[j].IdMasterData){
+              if(collectionOfTargetAddressID[i].Customer_Id === customers[j].IdMasterData){
                 res.push(customers[j])
                 // setState
                 // setContactsArr(prev => [...prev, customers[j]])
@@ -367,7 +367,7 @@ function PopupAddress() {
                                 { addressArr ? addressArr.map((item, i) => (
                                     <tr key={i}>
                                         <td>{i}</td>
-                                        <td>{item.Type}</td>
+                                        <td>{item.Customer_Type}</td>
                                         <td>{item.Company}</td>
                                         <td>{item.Email}</td>
                                         <td>{item.Phone}</td>

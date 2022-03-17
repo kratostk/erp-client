@@ -23,7 +23,7 @@ function MasterContact() {
     const [ showEditModal, setShowEditModal ] = useState(null)
     const [ filterData, setFilterData ] = useState([])
     const [ selectedContact, setSelectedContact ] = useState(null)
-    const [ contactsArr, setContactsArr ] = useState([])
+    const [ relationCustomerArr, setrelationCustomerArr ] = useState([])
     const [ updateBtnSpinner, setUpdateBtnSpinner ] = useState(false)
     
     const [show, setShow] = useState(false);
@@ -169,12 +169,10 @@ function MasterContact() {
             for(let j = 0; j < customers.length; j++) {
               if(collectionOfTargetContactID[i].Customer_Id === customers[j].IdMasterData){
                 res.push(customers[j])
-                // setState
-                // setContactsArr(prev => [...prev, customers[j]])
               }
             }
         }
-        setContactsArr(res)  
+        setrelationCustomerArr(res)  
     }
     // ------------------Conditional render data -------------------------
     React.useEffect(() => {
@@ -253,10 +251,10 @@ function MasterContact() {
                             </tr>
                         </thead>
                         <tbody>
-                            { contactsArr ? contactsArr.map((item, i) => (
+                            { relationCustomerArr ? relationCustomerArr.map((item, i) => (
                                 <tr>
                                     <td>{i}</td>
-                                    <td>{ item.Type }</td>
+                                    <td>{ item.Customer_Type }</td>
                                     <td>{ item.Company }</td>
                                     <td>{ item.Email }</td>
                                     <td>{ item.Phone }</td>

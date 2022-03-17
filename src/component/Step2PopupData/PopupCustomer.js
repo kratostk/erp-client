@@ -34,6 +34,7 @@ function PopupCustomer() {
     const [ saveBtnSpinner, setSaveBtnSpinner ] = useState(false)
     const [ addressArr, setAddressArr ] = useState(null)
     const [ contactArr, setContactArr ] = useState(null)
+    const [ submitBtnSpinner, setSubmitBtnSpinner ] = useState(false)
 
     //--------------------
     const [CustomerType, setCustomerType] = useState('company');
@@ -62,6 +63,7 @@ function PopupCustomer() {
             data: id
         })
     }
+
     // ********************************* PASS TO CHILD COMPONENTS FUNCTIONS ****************************\\
 
     //-------- Function validated  ------------
@@ -140,22 +142,28 @@ function PopupCustomer() {
     // ********************************* RELATION SUBMIT HANDLE ****************************\\
     const handleRelationSubmit = async () => {
         if(childID.isBusy && childID.target === 'address') {
+            setSubmitBtnSpinner(true)
             try {
                 //addID no
-                const res = await axios.post('http://localhost:5000/api/address/bind', { addID:  childID.data, cusID: lastCustomer.IdMasterData}, { withCredentials: true })
-                 dispatch({ type: 'UPDATE_REL_ADDRESS_CUSTOMER', payload: { addID:  childID.data, cusID: lastCustomer.IdMasterData}})
+                const res = await axios.post('http://localhost:5000/api/address/bind', { Address_Id:  childID.data, Customer_Id: lastCustomer.IdMasterData}, { withCredentials: true })
+                 dispatch({ type: 'UPDATE_REL_ADDRESS_CUSTOMER', payload: { Address_Id:  childID.data, Customer_Id: lastCustomer.IdMasterData}})
                  setChildID({ isBusy: false, target: null, data: null }) // for hiding selected customer
+                 setSubmitBtnSpinner(false)
             }catch(err) {
                 console.log(err)
+                setSubmitBtnSpinner(false)
             }
         }else if (childID.isBusy && childID.target === 'contact') {
+            setSubmitBtnSpinner(true)
             try {
                 //addID no
-                const res = await axios.post('http://localhost:5000/api/contact/bind', { conID:  childID.data, cusID: lastCustomer.IdMasterData}, { withCredentials: true })
-                dispatch({ type: 'UPDATE_REL_CONTACT_CUSTOMER', payload: { addID:  childID.data, cusID: lastCustomer.IdMasterData}})
+                const res = await axios.post('http://localhost:5000/api/contact/bind', { Contact_Id:  childID.data, Customer_Id: lastCustomer.IdMasterData}, { withCredentials: true })
+                dispatch({ type: 'UPDATE_REL_CONTACT_CUSTOMER', payload: { Contact_Id:  childID.data, Customer_Id: lastCustomer.IdMasterData}})
                  setChildID({ isBusy: false, target: null, data: null }) // for hiding selected customer
+                 setSubmitBtnSpinner(false)
             }catch(err) {
                 console.log(err)
+                setSubmitBtnSpinner(false)
             }
         }else {
             return false
@@ -240,12 +248,12 @@ function PopupCustomer() {
     const filterRelationAddress = (customer_ID) => {
         if(!customer_ID) return null;
 
-        const collectionOfTargetAddressID = customerAddresses.filter(item => item.cusID === customer_ID.IdMasterData)
+        const collectionOfTargetAddressID = customerAddresses.filter(item => item.Customer_Id === customer_ID.IdMasterData)
 
         let res = []
         for(let i = 0; i < collectionOfTargetAddressID.length; i++) {
             for(let j = 0; j < addresses.length; j++) {
-              if(collectionOfTargetAddressID[i].addID === addresses[j].IdMasterData){
+              if(collectionOfTargetAddressID[i].Address_Id === addresses[j].IdMasterData){
                 res.push(addresses[j])
               }
             }
@@ -260,12 +268,12 @@ function PopupCustomer() {
     const filterRelationContact = (customer_ID) => {
         if(!customer_ID) return null;
 
-        const collectionOfTargetContactID = customerContacts.filter(item => item.cusID === customer_ID.IdMasterData)
+        const collectionOfTargetContactID = customerContacts.filter(item => item.Customer_Id === customer_ID.IdMasterData)
 
         let res = []
         for(let i = 0; i < collectionOfTargetContactID.length; i++) {
             for(let j = 0; j < contacts.length; j++) {
-              if(collectionOfTargetContactID[i].addID === contacts[j].IdMasterData){
+              if(collectionOfTargetContactID[i].Contact_Id === contacts[j].IdMasterData){
                 res.push(contacts[j])
               }
             }
@@ -427,7 +435,7 @@ function PopupCustomer() {
                                 { addressArr ? addressArr.map((item, i) => (
                                     <tr>
                                         <td>{i}</td>
-                                        <td>{item.Type}</td>
+                                        <td>{item.TypeAddress}</td>
                                         <td>{item.Name}</td>
                                         <td>{item.Description}</td>
                                         <td>{item.Number}</td>
@@ -477,6 +485,15 @@ function PopupCustomer() {
                 <Modal.Footer>
                     
                     <Button disabled={ submitBtnDecide } variant="success" size="sm" onClick={handleRelationSubmit} >
+                        { submitBtnSpinner ? (
+                            <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                        />
+                        ): null}
                         Submit
                     </Button>
                     <Button variant="secondary" onClick={handleCloseModal} size="sm">

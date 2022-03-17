@@ -18,7 +18,7 @@ function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
     const [ selectedCustomerID, setSelectedCustomerID ] = useState(null)
     //----------------------
     const [show, setShow] = useState(false);
-    const [CustomerType, setCustomerType] = useState('');
+    const [CustomerType, setCustomerType] = useState('company');
     const [CustomerName, setCustomerName] = useState('');
     const [CustomerPhone, setCustomerPhone] = useState('');
     const [CustomerEmail, setCustomerEmail] = useState('');
@@ -31,7 +31,14 @@ function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
         setCheckboxState(false)
         setShow(false)
     };
-    const handleShow = () => setShow(true);
+    const handleShow = () => {
+        setShow(true)
+        setCustomerName('')
+        setCustomerPhone('')
+        setCustomerEmail('')
+        setCustomerFAX('')
+        setCustomerType('company')
+    };
     //************************* Modal Handle Function *************************//
 
     // ************************* Save Function *************************//
@@ -110,7 +117,7 @@ function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
                                         onChange={(e) => setSelectedCustomerID(e.target.value)} 
                                         disabled={!checkboxState} 
                                         defaultValue="Please select Customer">
-
+                                            <option value='' label='Please select an Customer' key='default'/>
                                         { customers && customers.map((item, i) => (
                                             <option value={item.IdMasterData} label={item.Company} key={i}/>
                                         ))}
@@ -127,8 +134,9 @@ function PopupCustomer({ isChildIDSet, isAddedContact ,getSelectedCustomerID}) {
                                     <Form.Select 
                                         onChange={(e) => setCustomerType(e.target.value)}
                                         disabled={checkboxState} 
-                                        defaultValue="Please select Customer type"
+                                        defaultValue="company"
                                     >
+                                        <option value="">Please select Customer type</option>
                                         <option value="personal">Personal</option>
                                         <option value="company">Company</option>
                                     </Form.Select>

@@ -117,7 +117,7 @@ function PopupAddAddress({ isChildIDSet ,isAddedContact, getSelectedAddressID })
                                             setSelectedAddressID(e.target.value)
                                         }} 
                                         disabled={!checkboxState} >
-
+                                        <option value='' label='Please select an address' key='default'/>
                                         { addresses && addresses.map((item, i) => (
                                             <option value={item.IdMasterData} label={item.Name} key={i}/>
                                         ))}

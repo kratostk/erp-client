@@ -12,6 +12,9 @@ function MasterAddress() {
     // ******************************* REDUX STORE *******************************//
     const dispatch = useDispatch()
     const addresses = useSelector(state => state.addresses.addresses.data)
+    const customers = useSelector(state => state.customers.customers.data)
+    const customerAddresses = useSelector(state => state.relationships.customerAddresses) // -> filter
+
     // ******************************* REDUX STORE *******************************//
    
     // ******************************* LOCAL STATE *******************************//
@@ -20,6 +23,7 @@ function MasterAddress() {
     const [ selectedAddress, setSelectedAddress ] = useState(null)
     const [show, setShow] = useState(false);
     const [ updateBtnSpinner, setUpdateBtnSpinner ] = useState(false)
+    const [ relationCustomerArr ,setRelationCustomerArr ] = useState([])
 
     //------messy state
     const [ type, setType ] = useState(null)
@@ -150,6 +154,7 @@ function MasterAddress() {
     ): null
     //################################### EDIT FUNCTIONS ########################################\\
 
+    
     const renderAddresses = filteredAddress.length ? filteredAddress.map((item, i) => {
         return (
             <tr key={i} onClick={ () => handleOpenEdit(item) }>
@@ -182,10 +187,32 @@ function MasterAddress() {
         )
     })
 
+    // ################################## FILTER RELATIONAL DATA ################################\\
+    const filterRelationCustomer = (address) => {
+        if(!address) return null;
+
+
+        const collectionOfTargetAddressID = customerAddresses.filter(item => item.Address_Id === address.IdMasterData)
+
+        let res = []
+        for(let i = 0; i < collectionOfTargetAddressID.length; i++) {
+            for(let j = 0; j < customers.length; j++) {
+              if(collectionOfTargetAddressID[i].Customer_Id === customers[j].IdMasterData){
+                res.push(customers[j])
+              }
+            }
+        }
+        setRelationCustomerArr(res)
+        // setContactsArr(res)  
+    }
+    // ################################## FILTER RELATIONAL DATA ################################\\
 
     React.useEffect(() => {
         dispatch(getAddresses())
     }, [])
+    React.useEffect(() => {
+        filterRelationCustomer(selectedAddress)
+    }, [customerAddresses, selectedAddress])
     // ******************************* RENDER && FILTER FUNCTIONS ********************************\\
 
     return (
@@ -263,14 +290,18 @@ function MasterAddress() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Pubic</td>
-                                    <td>ABC</td>
-                                    <td>ABC@gmail.com</td>
-                                    <td>0981234567</td>
-                                    <td>1234567890</td>
-                                </tr>
+
+                                { relationCustomerArr ? relationCustomerArr.map((item, i) => (
+                                    <tr>
+                                        <td>{i}</td>
+                                        <td>{ item.Customer_Type }</td>
+                                        <td>{ item.Company }</td>
+                                        <td>{ item.Email }</td>
+                                        <td>{ item.Phone }</td>
+                                        <td>{ item.FAX }</td>
+                                    </tr>
+                                )): null }
+
                             </tbody>
                         </Table>
                     </div >

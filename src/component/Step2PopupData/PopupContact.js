@@ -98,10 +98,10 @@ function PopupContact() {
     const handleRelationSubmit = async () => {
         setSubmitBtnSpinner(true)
         try {
-            const res = await axios.post('http://localhost:5000/api/contact/bind', { cusID:  childID, conID: lastContact.IdMasterData}, { withCredentials: true })
+            const res = await axios.post('http://localhost:5000/api/contact/bind', { Customer_Id:  childID, Contact_Id: lastContact.IdMasterData}, { withCredentials: true })
             // TODO: we need nothing from server response but status so we can react accordingly
             // dispatch selected customerID to redux store of master data relationship 
-            dispatch({ type: 'UPDATE_REL_CONTACT_CUSTOMER', payload: { cusID:  childID, conID: lastContact.IdMasterData}})
+            dispatch({ type: 'UPDATE_REL_CONTACT_CUSTOMER', payload: { Customer_Id:  childID, Contact_Id: lastContact.IdMasterData}})
             setChildID(null) // for hiding selected customer
             setSubmitBtnSpinner(false)     
         }catch(err) {
@@ -125,7 +125,7 @@ function PopupContact() {
                     <p>ID : <code>{n.IdMasterData}</code></p>
                 </Row>
                 <Row>
-                    <Col><p>Customer type : <b>{n.Type}</b></p></Col>
+                    <Col><p>Customer type : <b>{n.Customer_Type}</b></p></Col>
                     <Col><p>Customer name : <b>{n.Company}</b></p></Col>
                 </Row>
                 <Row>
@@ -141,7 +141,7 @@ function PopupContact() {
         //1 filter contactID out of relationship collection
         if(!contact_ID) return null;
 
-        const collectionOfTargetContactID = customerContacts.filter(item => item.conID === contact_ID.IdMasterData)
+        const collectionOfTargetContactID = customerContacts.filter(item => item.Contact_Id === contact_ID.IdMasterData)
         // {conID: 0, cusID: 1},
         // {conID: 0, cusID: 2},
         // ...
@@ -149,7 +149,7 @@ function PopupContact() {
         let res = []
         for(let i = 0; i < collectionOfTargetContactID.length; i++) {
             for(let j = 0; j < customers.length; j++) {
-              if(collectionOfTargetContactID[i].cusID === customers[j].IdMasterData){
+              if(collectionOfTargetContactID[i].Customer_Id === customers[j].IdMasterData){
                 res.push(customers[j])
                 // setState
                 // setContactsArr(prev => [...prev, customers[j]])
@@ -319,7 +319,7 @@ function PopupContact() {
                             { contactsArr ? contactsArr.map((item, i) => (
                                 <tr key={i}>
                                     <td>{i}</td>
-                                    <td>{item.Type}</td>
+                                    <td>{item.Customer_Type}</td>
                                     <td>{item.Company}</td>
                                     <td>{item.Email}</td>
                                     <td>{item.Phone}</td>

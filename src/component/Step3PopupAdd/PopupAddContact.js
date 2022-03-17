@@ -114,7 +114,7 @@ function PopupAddContact({ isChildIDSet, isAddedContact, getSelectedContactID })
                                         onChange={(e) => setSelectedContactID(e.target.value)} 
                                         disabled={!checkboxState} 
                                         defaultValue="Please select Contacts">
-
+                                        <option value='' label='Please select an contact' key='default'/>
                                         { contacts && contacts.map((item, i) => (
                                             <option value={item.IdMasterData} label={item.Name} key={i}/>
                                         ))}
